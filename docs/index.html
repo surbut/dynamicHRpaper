@@ -281,7 +281,7 @@ $(document).ready(function () {
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
 <span class="glyphicon glyphicon-list" aria-hidden="true"></span>
-workflowr <span class="glyphicon glyphicon-ok text-success"
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span>
 </button>
 </p>
@@ -292,8 +292,8 @@ aria-hidden="true"></span>
 </li>
 <li>
 <a data-toggle="tab" href="#checks"> Checks <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
-</a>
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -306,9 +306,9 @@ class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
-aria-hidden="true"></span> 0
+aria-hidden="true"></span> 1
 </p>
 <p>
 <strong>Knit directory:</strong> <code>dynamicHRpaper/</code> <span
@@ -331,31 +331,36 @@ versions</em> tab lists the development history.
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
-<span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
-</a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate"
+<div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git
-repository, you know the exact version of the code that produced these
-results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of
+the R Markdown file created these results, you’ll want to first commit
+it to the Git repo. If you’re still working on the analysis, you can
+ignore this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
 </div>
 </div>
 </div>
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrong0a0d417">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomsurbutdynamicHRpapertree773fd82a541133e17bf1b864f59d61d9ac6c81c8targetblank773fd82a">
 <span class="glyphicon glyphicon-ok text-success"
-aria-hidden="true"></span> <strong>Repository version:</strong> 0a0d417
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/surbut/dynamicHRpaper/tree/773fd82a541133e17bf1b864f59d61d9ac6c81c8" target="_blank">773fd82</a>
 </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrong0a0d417"
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomsurbutdynamicHRpapertree773fd82a541133e17bf1b864f59d61d9ac6c81c8targetblank773fd82a"
 class="panel-collapse collapse">
 <div class="panel-body">
 <p>
@@ -364,7 +369,8 @@ and connecting the code version to the results is critical for
 reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version 0a0d417.
+The results in this page were generated with repository version
+<a href="https://github.com/surbut/dynamicHRpaper/tree/773fd82a541133e17bf1b864f59d61d9ac6c81c8" target="_blank">773fd82</a>.
 See the <em>Past versions</em> tab to see a history of the changes made
 to the R Markdown and HTML files.
 </p>
@@ -378,7 +384,52 @@ depends on. Below is the status of the Git repository when the results
 were generated:
 </p>
 <pre><code>
-working directory clean
+Ignored files:
+    Ignored:    Figs/Fig3/
+    Ignored:    data/amit_df.rds
+    Ignored:    data/amit_df_with_pc_correction.rds
+    Ignored:    data/baseline_withPCS.rds
+    Ignored:    data/fh_full.rds
+    Ignored:    data/fh_prs.rds
+    Ignored:    data/fhs_prs_with_pc_corrrection.rds
+    Ignored:    data/followupdates.rds
+    Ignored:    data/genotype_data_nodup.eigenvec
+    Ignored:    output/amit_df_with_pc_correction.rds
+    Ignored:    output/fhs_prs_with_pc_corrrection.rds
+    Ignored:    output/h1hs_withPC.rds
+    Ignored:    output/hall_withPC.rds
+    Ignored:    output/hallpce.rds
+    Ignored:    output/hazards_fh_EQ_withPC_corrections.rds
+    Ignored:    output/hazards_fh_EQ_withPC_corrections_sex0.rds
+    Ignored:    output/hazards_fh_EQ_withPC_corrections_sex1.rds
+    Ignored:    output/hazards_rate_UKB_amit_EQ_withPCcorrection.rds
+    Ignored:    output/hazards_rate_lowerbound_amit_EQ_withPCcorrection.rds
+    Ignored:    output/hazards_rate_lowerbound_fh_EQ_withPC_corrections.rds
+    Ignored:    output/hazards_rate_lowerbound_fh_EQ_withPC_corrections_sex0.rds
+    Ignored:    output/hazards_rate_lowerbound_fh_EQ_withPC_corrections_sex1.rds
+    Ignored:    output/hazards_rate_upperbound_amit_EQ_withPCcorrection.rds
+    Ignored:    output/hazards_rate_upperbound_fh_EQ_withPC_corrections.rds
+    Ignored:    output/hazards_rate_upperbound_fh_EQ_withPC_corrections_sex0.rds
+    Ignored:    output/hazards_rate_upperbound_fh_EQ_withPC_corrections_sex1.rds
+    Ignored:    output/r2_withPC.rds
+    Ignored:    output/r2fhs_withPC.rds
+    Ignored:    output/r2pce.rds
+    Ignored:    output/statinuse.rds
+    Ignored:    output/zph_all.rds
+    Ignored:    output/zph_amit_EQ.rds
+
+Untracked files:
+    Untracked:  analysis/Supplemental Analyses/.DS_Store
+    Untracked:  flowcharts.html
+
+Unstaged changes:
+    Modified:   .DS_Store
+    Modified:   analysis/.DS_Store
+    Deleted:    analysis/Supplemental Analyses/StatinUse.html
+    Deleted:    analysis/Supplemental Analyses/verifyplots.html
+    Deleted:    analysis/Supplemental Analyses/zph.html
+    Modified:   analysis/index.Rmd
+
 </code></pre>
 <p>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not
@@ -424,10 +475,10 @@ Message
 <tbody>
 <tr>
 <td>
-Rmd
+html
 </td>
 <td>
-0a0d417
+<a href="https://rawcdn.githack.com/surbut/dynamicHRpaper/9d0696417075ddbada616903c9f8a7b51bad23df/docs/index.html" target="_blank">9d06964</a>
 </td>
 <td>
 Sarah Urbut
@@ -436,7 +487,24 @@ Sarah Urbut
 2024-06-12
 </td>
 <td>
-Start workflowr project.
+Update
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/surbut/dynamicHRpaper/blob/c48abee5b3f54a963acaa53371c7365bf1a70d7b/analysis/index.Rmd" target="_blank">c48abee</a>
+</td>
+<td>
+Sarah Urbut
+</td>
+<td>
+2024-06-12
+</td>
+<td>
+Update
 </td>
 </tr>
 </tbody>
@@ -446,7 +514,47 @@ Start workflowr project.
 </div>
 </div>
 </div>
-<p>Welcome to my research website.</p>
+<p>Welcome to a detailed reproduction of all analyses in the Dynamic
+Hazard paper, Urbut et al 2024.</p>
+<p><a href="Fig1.html">Figure 1</a> Here is the hazard rate and
+proportion of variation explained in the UK Biobank</p>
+<p><a href="Fig1b.html">Figure 1b</a> Here is the hazard rate and
+proportion of variation explained in the Framingham Offspring Cohort</p>
+<p><a href="Fig2.html">Figure 2</a> Here are the relative and absolute
+rates of CAD by PRS and PCE percentile for three age categories</p>
+<p><a href="Fig3.html">Figure 3</a> Here is the stratification by age
+and PCE using the UK Biobank</p>
+<p><a href="Fig4.html">Figure 4</a> Here is the proportion of future
+events captured using a PCE threshold of 7.5% versus a PRS threshold of
+greater than 80% to predict future events</p>
+<p><a href="NRI.html">Figure 1 Supplemental</a> Here is the net
+reclassification of events and non events using PCE versus PRS</p>
+<p><a href="SuppASCVD.html">Figure 2 Supplemental</a> Here is the
+proportion of individuals in each PCE risk class by age</p>
+<div id="validation" class="section level1">
+<h1>Validation</h1>
+<p><a href="zph.html">Proportional Hazards</a> Here is the demonstration
+cox PH is violated with typical model.</p>
+<p><a href="cumulativeinc.html">Cum Events</a> Here I plot cumulative
+events by ACVD strata or by age.</p>
+<p><a href="verifyplots.html">Density Plots</a> Here I show PRS
+distirbution for overall cohort, and for ours, with different
+scaling.</p>
+<p><a href="StatinUse.html">Lipid Plot</a> Here I show detailed analysis
+of statin use by age of enrollment in the FOS.</p>
+<p><a href="Sex_analyse.html">Sex Plot</a> Here I show detailed analysis
+of hazard ratios by sex in FOS and age of enrollment by menopause.</p>
+</div>
+<div id="tables" class="section level1">
+<h1>Tables</h1>
+<p>We also have a variety of exlucsion tables and summary tables</p>
+<p><a href="table1.html">Table 1</a> Here is the summary
+characterisitics of each cohort, and of division by ASCVD and PRS risk
+calss in the UK Biobank subset</p>
+<p><a href="flowcharts.html">Exclusions</a> Here are the flowcharts of
+exclusionary criteria for creating the cohorts used in these
+analyses.</p>
+</div>
 
 
 <!-- Adjust MathJax settings so that all math formulae are shown using

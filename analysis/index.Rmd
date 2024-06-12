@@ -8,4 +8,41 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, Urbut et al 2024.
+
+[Figure 1](Fig1.html) Here is the hazard rate and proportion of variation explained in the UK Biobank
+
+[Figure 1b](Fig1b.html) Here is the hazard rate and proportion of variation explained in the Framingham Offspring Cohort
+
+[Figure 2](Fig2.html) Here are the relative and absolute rates of CAD by PRS and PCE percentile for three age categories
+
+[Figure 3](Fig3.html) Here is the stratification by age and PCE using the UK Biobank
+
+[Figure 4](Fig4.html) Here is the proportion of future events captured using a PCE threshold of 7.5% versus a PRS threshold of greater than 80% to predict future events
+
+[Figure 1 Supplemental ](NRI.html) Here is the net reclassification of events and non events using PCE versus PRS
+
+
+[Figure 2 Supplemental](SuppASCVD.html) Here is the proportion of individuals in each PCE risk class by age
+
+# Validation
+
+[Proportional Hazards](zph.html) Here is the demonstration cox PH is violated with typical model.
+
+[Cum Events](cumulativeinc.html) Here I plot cumulative events by ACVD strata or by age.
+
+[Density Plots](verifyplots.html) Here I show PRS distirbution for overall cohort, and for ours, with different scaling.
+
+[Lipid Plot](StatinUse.html) Here I show detailed analysis of statin use by age of enrollment in the FOS.
+
+[Sex Plot](Sex_analyse.html) Here I show detailed analysis of hazard ratios by sex in FOS and age of enrollment by menopause.
+
+# Tables
+
+We also have a variety of exlucsion tables and summary tables 
+
+[Table 1](table1.html) Here is the summary characterisitics of each cohort, and of division by ASCVD and PRS risk calss in the UK Biobank subset
+
+[Exclusions](flowcharts.html) Here are the flowcharts of exclusionary criteria for creating the cohorts used in these analyses.
+
+
