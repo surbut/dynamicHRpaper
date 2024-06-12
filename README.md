@@ -1,2 +1,5 @@
 # dynamicHRpaper
-Figures and Code for Dynamic HR Paper
+
+A [workflowr][] project.
+
+[workflowr]: https://github.com/workflowr/workflowr
