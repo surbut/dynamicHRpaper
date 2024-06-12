@@ -1,0 +1,212 @@
+---
+title: "Verify Plots"
+author: "Sarah Urbut"
+date: "2023-03-12"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE,message = FALSE,warning = FALSE)
+
+```
+
+
+## Plot median by age for all 500K with SCORE normalized by ALl
+
+```{r}
+library('data.table')
+library("dplyr")
+library("ggplot2")
+library(tidyr)
+library("ggridges")
+library(ggsci)
+
+prs=fread("~/Dropbox/phenotypes/CAD_prs.txt")
+prs=na.omit(prs)
+
+pcdf=readRDS("data/baseline_withPCS.rds")
+pcdf$birth_date <- as.Date(paste(pcdf$f.34.0.0, "06", "15", sep = "-"))
+
+# Convert enrollment_date to Date object
+pcdf$enrollment_date <- as.Date(pcdf$f.53.0.0)
+
+# Calculate age at enrollment
+pcdf$age_at_enrollment <- as.numeric(difftime(pcdf$enrollment_date, pcdf$birth_date, units = "weeks")) / 52.25
+
+pcdf=pcdf[,c("identifier","age_at_enrollment","f.22009.0.1","f.22009.0.2","f.22009.0.3","f.22009.0.4","f.22009.0.5","f.22009.0.6","f.22009.0.7","f.22009.0.8","f.22009.0.9","f.22009.0.10")]
+
+
+
+
+merged_df <- prs[,c("SAMPLE","SCORE")] %>%
+ inner_join(pcdf, by = c("SAMPLE" = "identifier"))
+
+# Fit a linear model to residualize the PRS scores for the first 10 PCs
+model <- lm(SCORE ~ f.22009.0.1 + f.22009.0.2 + f.22009.0.3 + f.22009.0.4 +
+                  f.22009.0.5 + f.22009.0.6 + f.22009.0.7 + f.22009.0.8 +
+                  f.22009.0.9 + f.22009.0.10, data = merged_df)
+
+# Extract the residuals
+merged_df$residuals <- residuals(model)
+
+merged_df$scaled_score=scale(merged_df$residuals)
+
+amit_df=readRDS("~/dynamicHRpaper/output/amit_df_with_pc_correction.rds")
+subject_id=amit_df$eid
+m2=merged_df[merged_df$SAMPLE%in%subject_id,]
+
+all=aggregate(scaled_score ~ round(age_at_enrollment,0), data = merged_df, median)
+sub=aggregate(scaled_score ~ round(age_at_enrollment,0), data = m2, median)
+colnames(sub)=colnames(all)=c("Age","Score")
+
+meld=merge(all,sub,by="Age")
+colnames(meld)=c("Age","All Participants","CAD Free Participants")
+mt=melt(meld[3:33,],id.vars="Age")
+
+ggplot(mt,aes(Age,y = value,col=variable))+geom_point()+ylim(c(-2.5,2.5))+theme_classic()+labs(color="Data Type",y="Median Scaled PRS")
+
+```
+
+## without PC
+
+```{r}
+library('data.table')
+library("dplyr")
+library("ggplot2")
+library(tidyr)
+
+prs=fread("~/Dropbox/phenotypes/CAD_prs.txt")
+prs=na.omit(prs)
+
+pcdf=readRDS("data/baseline_withPCS.rds")
+pcdf$birth_date <- as.Date(paste(pcdf$f.34.0.0, "06", "15", sep = "-"))
+
+# Convert enrollment_date to Date object
+pcdf$enrollment_date <- as.Date(pcdf$f.53.0.0)
+
+# Calculate age at enrollment
+pcdf$age_at_enrollment <- as.numeric(difftime(pcdf$enrollment_date, pcdf$birth_date, units = "weeks")) / 52.25
+
+pcdf=pcdf[,c("identifier","age_at_enrollment","f.22009.0.1","f.22009.0.2","f.22009.0.3","f.22009.0.4","f.22009.0.5","f.22009.0.6","f.22009.0.7","f.22009.0.8","f.22009.0.9","f.22009.0.10")]
+
+
+
+
+merged_df <- prs[,c("SAMPLE","SCORE")] %>%
+ inner_join(pcdf, by = c("SAMPLE" = "identifier"))
+
+# Fit a linear model to residualize the PRS scores for the first 10 PCs
+# model <- lm(SCORE ~ f.22009.0.1 + f.22009.0.2 + f.22009.0.3 + f.22009.0.4 +
+#                   f.22009.0.5 + f.22009.0.6 + f.22009.0.7 + f.22009.0.8 +
+#                   f.22009.0.9 + f.22009.0.10, data = merged_df)
+# 
+# # Extract the residuals
+# merged_df$residuals <- residuals(model)
+
+merged_df$scaled_score=scale(merged_df$SCORE)
+
+amit_df=readRDS("~/dynamicHRpaper/output/amit_df_with_pc_correction.rds")
+subject_id=amit_df$eid
+m2=merged_df[merged_df$SAMPLE%in%subject_id,]
+
+all=aggregate(scaled_score ~ round(age_at_enrollment,0), data = merged_df, median)
+sub=aggregate(scaled_score ~ round(age_at_enrollment,0), data = m2, median)
+colnames(sub)=colnames(all)=c("Age","Score")
+
+meld=merge(all,sub,by="Age")
+colnames(meld)=c("Age","All Participants","CAD Free Participants")
+mt=melt(meld[3:33,],id.vars="Age")
+
+ggplot(mt,aes(Age,y = value,col=variable))+geom_point()+ylim(c(-2.5,2.5))+theme_classic()+labs(color="Data Type",y="Median Scaled PRS, NO PC control")
+
+```
+                                                                                               
+
+
+
+
+## Density plots
+
+Scaling using whole poulation
+```{r}
+merged_df <- merged_df %>%
+  mutate(age_group = case_when(
+    age_at_enrollment < 55 ~ "<40",
+    #age_at_enrollment >= 40 & age_at_enrollment < 50 ~ "40-49",
+    age_at_enrollment >= 55 & age_at_enrollment < 65 ~ "50-59",
+    age_at_enrollment >= 65 ~ "60+"
+  ))
+# General population distribution (Assume general population is the whole dataset)
+general_population <- merged_df
+
+# Study population distribution (Filter based on some condition, replace with actual study population filter)
+study_population <- merged_df[merged_df$SAMPLE%in%subject_id,]# Example condition
+
+# Plot distributions
+plot_distribution <- function(df, title) {
+ggplot(df, aes(x = scaled_score, y = age_group,fill=age_group)) + 
+  geom_density_ridges() + theme_ridges()+labs(x = "Genomic Risk Quantile", y = "Age Category")+scale_fill_futurama()+theme_classic()
+}
+
+# Plot for general population
+p1 <- plot_distribution(general_population, "Polygenic Score Distribution in General Population")
+
+# Plot for study population
+p2 <- plot_distribution(study_population, "Polygenic Score Distribution in Study Population")
+
+# Show plots
+p1=p1+ggtitle("General Population, with PC adjusted scaling")
+p2=p2 + ggtitle("Study Population, with PC, Scaled to General Population")
+```
+
+NOw we do it without the PC scaling
+
+```{r}
+
+
+merged_df$scaled_without_pc=scale(merged_df$SCORE)
+# General population distribution (Assume general population is the whole dataset)
+general_population <- merged_df
+
+# Study population distribution (Filter based on some condition, replace with actual study population filter)
+study_population <- merged_df[merged_df$SAMPLE%in%subject_id,]# Example condition
+
+# Plot distributions
+plot_distribution <- function(df, title) {
+ggplot(df, aes(x = scaled_without_pc, y = age_group,fill=age_group)) + 
+  geom_density_ridges() + theme_ridges()+labs(x = "Genomic Risk Quantile", y = "Age Category")+scale_fill_futurama()+theme_classic()
+}
+
+# Plot for general population
+p3 <- plot_distribution(general_population, "Polygenic Score Distribution in General Population")
+
+# Plot for study population
+p4 <- plot_distribution(study_population, "Polygenic Score Distribution in Study Population")
+
+# Show plots
+p3=p3+ggtitle("General Population, NO PC")
+p4=p4 + ggtitle("Study Population, NO PC, Scaled to General Population")
+```
+
+```{r}
+library(cowplot)
+combined_plot <- plot_grid(p1, p2,p3,p4,labels = "AUTO")
+combined_plot
+ggsave(combined_plot,file="Figs/Combined_density.png",dpi=300)
+```
+Finally, we can do qqplots showing scaling overall:
+
+```{r}
+q1=qqplot(general_population$scaled_score,study_population$scaled_score,xlab="General Population PRS Quantiles",ylab="Study Population PRS Quantiles",plot.it = T)
+```
+
+And wihtout PCS:
+
+```{r}
+q2=qqplot(general_population$scaled_without_pc,study_population$scaled_without_pc,xlab="General Population PRS Quantiles, No PC",ylab="Study Population PRS Quantiles, NO PC",plot.it = T)
+```
+

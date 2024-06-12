@@ -1,0 +1,318 @@
+---
+title: "cumutlaitve final"
+output: html_document
+date: '2023-05-20'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Cumulative incidence plot
+```{r,eval=T,echo=F,warning=FALSE,message=FALSE}
+setwd("~/dynamicHRpaper//")
+library(survival)
+library(ggplot2)
+library(dplyr)
+library(survminer)
+
+df=readRDS("output/amit_df_with_pc_correction.rds")
+
+df$prs_quant = scale(df$scaled_score)
+df$prs.r = (rank(df$prs_quant) / length(df$prs_quant))
+df$round_age = round(df$phenos.enrollment, 0)
+df$ldl.quant = scale(df$ldladj)
+df$sbp.quant = scale(df$sbp)
+df$hdl.quant = scale(df$hdladj)
+df$chol.quant = scale(df$choladj)
+df$age.quant = scale(df$phenos.enrollment)
+df$bmi.quant = scale(df$bmi)
+df$phenos.has_CAD = df$has_disease
+df$sex = ifelse(df$sex == "male", 1, 0)
+
+
+
+df$enroll_age_cat=cut(df$phenos.enrollment,breaks = c(0,45,50,55,60,65,70,75))
+df$censor_age_cat=cut(df$phenos.CAD_censor_age,breaks = c(0,45,50,55,60,65,70,75,80,85))
+
+
+library(ggplot2)
+```
+
+
+# Age cat specific plots
+
+## interaction
+
+# Here we break into three age groups and stratify by PRS, asking about resolution by PRS:
+
+
+```{r interactionall}
+dyoung=df[df$phenos.enrollment<55,]
+dyoung$pce.age=scale(dyoung$ascvd_10y_accaha_all)
+dyoung$pce.r=rank(dyoung$pce.age)/length(dyoung$pce.age)
+dyoung$pce.cat=cut(dyoung$pce.r,breaks=c(0,0.20,0.80,1))
+dyoung$Interaction=interaction(dyoung$prscat,dyoung$pce.cat)
+
+## now with interaction
+
+fit <- survfit(Surv(phenos.CAD_censor_age,phenos.has_CAD)~Interaction, data=dyoung)
+ #fit <- survfit(Surv((phenos.CAD_censor_age), phenos.has_CAD) ~prscat, data=df[df$phenos.enrollment<55,])
+g_young=ggsurvplot(fit,
+           pval = TRUE, conf.int = TRUE,
+        
+           fun="cumhaz",
+           censor=FALSE,
+          
+           xlim = c(40, 67),
+           ylim=c(0,0.6),
+           
+            #xlab = "Time since Enrollment",
+           xlab = "Time of Event (Age)",
+           ylab = "Cumulative Hazard of Incident CAD",
+           #ylim=c(0,0.15),
+           title = "Enrollment Age <55",
+          legend.title = "Genomic and Clinical Risk Strata",
+          ggtheme = theme_classic2(base_size=18),
+palette=c(colorRampPalette(c("#DEEBF7", "#9ECAE1", "#3182BD"))(3),
+colorRampPalette(c("#E5F5E0", "#A1D99B", "#31A354"))(3),
+colorRampPalette(c("#FEE6CE", "#FDAE6B", "#E6550D"))(3)),break.x.by = 5,
+
+
+          
+          legend.labs = c("Low PCE, Low PRS",
+                          "Low PCE, Intermediate PRS" ,
+                          "Low PCE, High PRS",
+                          
+                          "Intermediate PCE, Low PRS",
+                          "Intermediate PCE, Intermediate PRS",
+                          "Intermediate PCE, High PRS",
+                          
+                          "High PCE, Low PRS",
+                          "High PCE, Intermediate PRS",
+                          "High PCE, High PRS"))
+
+###
+
+dmid=df[df$phenos.enrollment>55&df$phenos.enrollment<65,]
+dmid$pce.age=scale(dmid$ascvd_10y_accaha_all)
+dmid$pce.r=rank(dmid$pce.age)/length(dmid$pce.age)
+dmid$pce.cat=cut(dmid$pce.r,breaks=c(0,0.20,0.80,1))
+dmid$Interaction=interaction(dmid$prscat,dmid$pce.cat)
+### interaction
+
+fit <- survfit(Surv(phenos.CAD_censor_age,phenos.has_CAD)~Interaction, data=dmid)
+
+
+g_mid=ggsurvplot(fit,
+           pval = TRUE, 
+           conf.int = TRUE,
+           censor=FALSE,
+           ##risk.table = F, 
+           ##risk.table.col = "strata",
+           fun="cumhaz",
+           #xlim = c(0, 15), 
+           xlim = c(55, 80),
+           ylim=c(0,0.6),
+          #xlab = "Time since Enrollment",
+           xlab = "Time of Event (Age)",
+           ylab = "Cumulative Hazard",
+           #ylim=c(0,0.15),
+           title = "Enrollment Age 55-65",
+          legend.title = "PRS:PCE Rank",
+          ggtheme = theme_classic2(base_size=18),
+           #font.family = "Arial",
+               #  font.family = "Arial",
+          break.x.by = 5,
+palette=c(colorRampPalette(c("#DEEBF7", "#9ECAE1", "#3182BD"))(3),
+colorRampPalette(c("#E5F5E0", "#A1D99B", "#31A354"))(3),
+colorRampPalette(c("#FEE6CE", "#FDAE6B", "#E6550D"))(3)),
+
+
+          
+    
+          legend.labs = c("Low PCE, Low PRS",
+                          "Low PCE, Intermediate PRS" ,
+                          "Low PCE, High PRS",
+                          
+                          "Intermediate PCE, Low PRS",
+                          "PCE Intermediate, Intermediate PRS",
+                          "Intermediate PCE, High PRS",
+                          
+                          "High PCE, Low PRS",
+                          "High PCE, Intermediate PRS",
+                          "High PCE, High PRS"))
+###
+
+dold=df[df$phenos.enrollment>65,]
+dold$pce.age=scale(dold$ascvd_10y_accaha_all)
+dold$pce.r=rank(dold$pce.age)/length(dold$pce.age)
+dold$pce.cat=cut(dold$pce.r,breaks=c(0,0.20,0.80,1))
+dold$Interaction=interaction(dold$prscat,dold$pce.cat)
+
+### Interaction
+
+
+fit <- survfit(Surv(phenos.CAD_censor_age, phenos.has_CAD)~Interaction, data=dold) 
+
+
+g_old=ggsurvplot(fit,
+           pval = TRUE, conf.int = TRUE,censor=FALSE,
+           ##risk.table = F, 
+           ##risk.table.col = "strata",
+           fun="cumhaz",
+           #xlim = c(0, 15), 
+           xlim = c(65, 85),
+           ylim=c(0,0.6),
+            #xlab = "Time since Enrollment",
+           xlab = "Time of Event (Age)",
+           #ylab = "Cumulative Hazard",
+           #ylim=c(0,0.15),
+           title = "Enrollment Age >65",
+          legend.title = "PRS:PCE Rank",
+          ggtheme = theme_classic2(base_size=18),
+           #font.family = "Arial",
+           palette=c(colorRampPalette(c("#DEEBF7", "#9ECAE1", "#3182BD"))(3),
+colorRampPalette(c("#E5F5E0", "#A1D99B", "#31A354"))(3),
+colorRampPalette(c("#FEE6CE", "#FDAE6B", "#E6550D"))(3)),
+break.x.by = 5,
+       
+          legend.labs = c("Low PCE:Low PRS",
+                          "Low PCE:Intermediate PRS" ,
+                          "Low PCE:High PRS",
+                          
+                          "Intermediate PCE:Low PRS",
+                          "PCE Intermediate:Intermediate PRS",
+                          "Intermediate PCE:High PRS",
+                          
+                          "High PCE:Low PRS",
+                          "High PCE:Intermediate PRS",
+                          "High PCE:High PRS"))
+
+```
+
+## alltogether
+```{r}
+
+gg1=ggarrange(g_young$plot,g_mid$plot+labs(y=NULL),g_old$plot+labs(y=NULL),nrow=1,ncol=3,labels=c("A.","B.","C."),common.legend = T,legend="right")
+
+gg1
+
+ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.tiff",height=10,width = 18,create.dir = TRUE)
+```
+
+## return cumulative hazard for low and high of each age 
+
+```{r}
+get_cumI=function(ggsurvplot,stratum){
+  stratum_data <- ggsurvplot$data.survplot[ggsurvplot$data.survplot$strata == stratum, ]
+  cumulative_hazard <- -log(stratum_data$surv)
+  cum_haz_se=stratum_data$std.err/stratum_data$surv
+  return(list(ch=cumulative_hazard[length(cumulative_hazard)],se=(stratum_data$std.err/stratum_data$surv)[length(cumulative_hazard)]))
+}
+
+
+
+get_cumI(g_young,stratum="Interaction=low.(0,0.2]")
+get_cumI(g_young,stratum="Interaction=high.(0.8,1]")
+
+get_cumI(g_young,stratum="Interaction=high.(0.8,1]")$ch-get_cumI(g_young,stratum="Interaction=high.(0.8,1]")$se*1.96
+get_cumI(g_young,stratum="Interaction=high.(0.8,1]")$ch+get_cumI(g_young,stratum="Interaction=high.(0.8,1]")$se*1.96
+
+get_cumI(g_mid,stratum="Interaction=low.(0,0.2]")
+get_cumI(g_mid,stratum="Interaction=high.(0.8,1]")
+
+
+get_cumI(g_old,stratum="Interaction=low.(0,0.2]")
+
+get_cumI(g_old,stratum="Interaction=low.(0,0.2]")$ch-get_cumI(g_old,stratum="Interaction=low.(0,0.2]")$se*1
+get_cumI(g_old,stratum="Interaction=low.(0,0.2]")$ch+get_cumI(g_old,stratum="Interaction=low.(0,0.2]")$se*1
+get_cumI(g_old,stratum="Interaction=low.(0,0.2]")
+
+get_cumI(g_old,stratum="Interaction=high.(0.8,1]")$ch-get_cumI(g_old,stratum="Interaction=high.(0.8,1]")$se*1
+get_cumI(g_old,stratum="Interaction=high.(0.8,1]")$ch+get_cumI(g_old,stratum="Interaction=high.(0.8,1]")$se*1
+
+
+
+get_cumI=function(data,stratum){
+  fit <- survfit(Surv(phenos.CAD_censor_age,phenos.has_CAD)~1, data=data[data$Interaction==stratum])
+  cumulative_hazard <- fit$cumhaz[length(fit$cumhaz)]
+  cum_haz_se=fit$std.err[length(fit$cumhaz)]
+  return(list(ch=cumulative_hazard,se=cum_haz_se))
+}
+
+
+get_cumI(dyoung,stratum="low.(0,0.2]")
+get_cumI(dyoung,stratum="high.(0.8,1]")
+
+get_cumI(dmid,stratum="low.(0,0.2]")
+get_cumI(dmid,stratum="high.(0.8,1]")
+
+
+get_cumI(dold,stratum="low.(0,0.2]")
+get_cumI(dold,stratum="high.(0.8,1]")
+
+## to get standard erro
+
+# https://dominicmagirr.github.io/post/2022-01-18-be-careful-with-standard-errors-in-survival-survfit/
+
+### http://www.sthda.com/english/wiki/survival-analysis-basics
+
+
+# Get unique levels of the strata variable
+strata_levels <- unique(dyoung$Interaction)
+
+# Loop through each level of the strata
+for (strata_level in c("low.(0,0.2]","high.(0.8,1]")) {
+  # Subset the survival object for the current strata level
+  
+strata_surv <- survfit(Surv(phenos.CAD_censor_age,phenos.has_CAD)~1, data=dyoung[dyoung$Interaction==strata_level,])
+  
+  # Calculate the cumulative hazard
+  cumhaz <- -log(strata_surv$surv)[length(strata_surv$surv)]
+  lower=-log(strata_surv$upper)[length(strata_surv$surv)]
+  upper=-log(strata_surv$lower)[length(strata_surv$surv)]
+  
+
+  # Print the results for the current strata level
+  cat("Strata Level:", strata_level, "\n")
+  cat("Cumulative Hazard:", cumhaz, "\n")
+  cat("Cumulative Hazard Confidence Interval:", c(lower,upper), "\n\n")
+}
+
+
+# Loop through each level of the strata
+for (strata_level in c("low.(0,0.2]","high.(0.8,1]")) {
+  # Subset the survival object for the current strata level
+  
+strata_surv <- survfit(Surv(phenos.CAD_censor_age,phenos.has_CAD)~1, data=dold[dold$Interaction==strata_level,])
+  
+  # Calculate the cumulative hazard
+  cumhaz <- -log(strata_surv$surv)[length(strata_surv$surv)]
+  fit=strata_surv
+  lower=fit$cumhaz[length(fit$cumhaz)]-1.96*fit$std.chaz[length(fit$cumhaz)]
+  upper=fit$cumhaz[length(fit$cumhaz)]+1.96*fit$std.chaz[length(fit$cumhaz)]
+  lower2=-log(strata_surv$upper)[length(strata_surv$surv)]
+  upper2=-log(strata_surv$lower)[length(strata_surv$surv)]
+  
+
+  # Print the results for the current strata level
+  cat("Strata Level:", strata_level, "\n")
+  cat("Cumulative Hazard:", cumhaz, "\n")
+  cat("Cumulative Hazard Confidence Interval symmetric:", c(lower,upper), "\n\n")
+  cat("Cumulative Hazard Confidence Interval log:", c(lower2,upper2), "\n\n")
+}
+
+
+#Among individuals with CAD <55 years, XXX (XXX%) had high (>20th # percentile) PRS and XXX (XXX%) had high (>20% estimated risk) PCE. 
+
+dyoungevent=df[df$phenos.CAD_censor_age<55&df$phenos.has_CAD==1,]
+sum(dyoungevent$prs.r>0.80)
+t.test(dyoungevent$prs.r>0.80)
+#0.3935484 
+sum(dyoungevent$ascvd_10y_accaha_all>20)
+t.test(dyoungevent$ascvd_10y_accaha_all>20)
+## 0.02949309
+
+```

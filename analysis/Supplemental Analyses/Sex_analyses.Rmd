@@ -1,0 +1,89 @@
+---
+title: "SexAnalysis"
+output: html_document
+date: "2024-06-12"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,echo=F,message=FALSE}
+library("dplyr")
+library("tidyverse")
+library("survival")
+library("survminer")
+library("eulerr")
+library("ggplot2")
+library("reshape")
+library("ggfortify")
+library("gridExtra")
+library("survMisc")
+library("rsq")
+library("pROC")
+library("data.table")
+library("RColorBrewer")
+library("gt")
+library("DT")
+library("plotly")
+library("carData")
+library("gapminder")
+library("babynames")
+library("plotly")
+```
+
+## generate FHS hazard mat
+
+```{r cars}
+setwd("~/dynamicHRpaper/")
+
+data_female=readRDS("output/hazards_fh_EQ_withPC_corrections_sex0.rds")
+data_female$age=c(18:57)
+data_male=readRDS("output/hazards_fh_EQ_withPC_corrections_sex1.rds")
+data_male$age=c(18:57)
+# Melt the data for ggplot2
+data_male_melted <- melt(data_male, id.vars = "age")
+data_female_melted <- melt(data_female, id.vars = "age")
+
+# Add a column to differentiate male and female data
+data_male_melted$sex <- "Male"
+data_female_melted$sex <- "Female"
+
+
+# Combine the data
+data_combined <- rbind(data_male_melted, data_female_melted)
+hr=data_combined[grep(data_combined$variable,pattern="HR"),]
+hr=hr[hr$variable%in%c("prs.HR","ldl.HR","smoke.HR","age.HR","sbp.HR","hdl.HR"),]
+# Plot the data
+ggplot(hr, aes(x = age, y = value, color = sex, shape = sex,fill=sex)) +
+  geom_smooth() +
+  facet_wrap(~ variable, scales = "free_y") +
+  labs(
+    title = "Hazard Ratios by Variable and Sex",
+    x = "Age",
+    y = "Hazard Ratio"
+  ) +
+  theme_classic()
+```
+
+
+```{r}
+d2=readRDS("data/followupdates.rds")
+d2 <- d2 %>%
+  rowwise() %>%
+  mutate(follow_up_days = max(c_across(starts_with("DATE")), na.rm = TRUE),
+         follow_up_years = follow_up_days / 365,
+         end_age = AGEENROLL + follow_up_years) %>%
+  ungroup()
+
+# Plot the follow-up period by sex
+ggplot(d2[d2$AGEENROLL>18&d2$follow_up_years>10,], aes(x = AGEENROLL, y = end_age,col=as.factor(SEX))) +
+  geom_point() +
+  labs(
+    title = "Follow-up Period by Sex",
+    x = "Sex",
+    y = "Follow-up Period (years)"
+  ) +scale_color_manual(values = c("1" = "blue", "2" = "red"), labels = c("1" = "Male", "2" = "Female")) +
+  theme_classic()+labs(x="Age of Enrollment",y="End Followup",col="Sex")+geom_vline(xintercept = 51, linetype = "dashed", color = "black", size = 0.7) 
+```
+

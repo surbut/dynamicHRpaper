@@ -6,6 +6,10 @@
 .RData
 .RDataTmp
 
+data/*
+output/*.rds
+Figs/Fig3/interaction*.tiff
+
 # User-specific files
 .Ruserdata
 

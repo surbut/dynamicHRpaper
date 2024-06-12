@@ -1,0 +1,63 @@
+---
+title: "Statin Use"
+output: html_document
+date: '2023-02-26'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Here we generate the FHS, 
+
+# Package load
+
+```{r,echo=F,message=FALSE}
+library("dplyr")
+library("tidyverse")
+library("survival")
+library("survminer")
+library("eulerr")
+library("ggplot2")
+library("reshape")
+library("ggfortify")
+library("gridExtra")
+library("survMisc")
+library("rsq")
+library("pROC")
+library("data.table")
+library("RColorBrewer")
+library("gt")
+library("DT")
+library("plotly")
+library("carData")
+library("gapminder")
+library("babynames")
+library("plotly")
+```
+
+```{r}
+f2=readRDS("output/statinuse.rds")
+
+statin_summary <- f2 %>%
+group_by(AGE1) %>%
+summarize(
+on_statin = sum(ever_on_statin),
+total = n(),
+percent_on_statin = round((sum(ever_on_statin) / n()) * 100,2)
+)
+# Print the summary table
+print(statin_summary)
+# Plot the summary
+ggplot(statin_summary[statin_summary$AGE1%in%c(18:57),], aes(x = AGE1, y = percent_on_statin))+geom_smooth()+labs(title = "Percentage of Individuals Ever on Statin by Age of Enrollment",x = "Age of Enrollment",y = "Percentage Ever on Statin") +theme_classic()
+```
+
+
+## Display Table
+
+```{r}
+library(DT)
+DT::datatable(statin_summary)
+```

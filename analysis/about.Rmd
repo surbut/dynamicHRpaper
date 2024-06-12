@@ -7,4 +7,5 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+Welcome to the paper website for Dynamic Hazard! 
+Here, we aim to demonstrate the variation in the importance of risk factors throughout the life course. Inside, you'll find a guide to creating all of our figures and tables. Please reach out for raw data.
