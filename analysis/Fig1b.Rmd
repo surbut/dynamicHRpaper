@@ -131,7 +131,7 @@ colnames(hrmat)=colnames(ormat)=colnames(r2mat)=c("Polygenic risk score","LDL Ch
 ```
 
 
-````{r new}
+```{r new}
 
 # upperbound=data.frame(readRDS("output/hazards_rate_upperbound_fh_EQ.rds"))
 # lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_fh_EQ.rds"))

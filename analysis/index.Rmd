@@ -10,15 +10,15 @@ editor_options:
 
 Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, Urbut et al 2024.
 
-[Figure 1](Fig1.html) Here is the hazard rate and proportion of variation explained in the UK Biobank
+[Figure 1](Fig1.html) Here is the hazard rate and proportion of variation explained in the UK Biobank and 
 
 [Figure 1b](Fig1b.html) Here is the hazard rate and proportion of variation explained in the Framingham Offspring Cohort
 
-[Figure 2](Fig2.html) Here are the relative and absolute rates of CAD by PRS and PCE percentile for three age categories
+[Figure 2](Figure2.html) Here are the relative and absolute rates of CAD by PRS and PCE percentile for three age categories
 
-[Figure 3](Fig3.html) Here is the stratification by age and PCE using the UK Biobank
+[Figure 3](Figure3.html) Here is the stratification by age and PCE using the UK Biobank
 
-[Figure 4](Fig4.html) Here is the proportion of future events captured using a PCE threshold of 7.5% versus a PRS threshold of greater than 80% to predict future events
+[Figure 4](Figure4.html) Here is the proportion of future events captured using a PCE threshold of 7.5% versus a PRS threshold of greater than 80% to predict future events
 
 [Figure 1 Supplemental ](NRI.html) Here is the net reclassification of events and non events using PCE versus PRS
 
