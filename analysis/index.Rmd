@@ -12,7 +12,7 @@ Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, 
 
 [Figure 1](Figure1.html) Here is the hazard rate and proportion of variation explained in the UK Biobank and 
 
-[Figure 1b](Fig1b.html) Here is the hazard rate and proportion of variation explained in the Framingham Offspring Cohort
+[Figure 1b](Figure1b.html) Here is the hazard rate and proportion of variation explained in the Framingham Offspring Cohort
 
 [Figure 2](Figure2.html) Here are the relative and absolute rates of CAD by PRS and PCE percentile for three age categories
 
