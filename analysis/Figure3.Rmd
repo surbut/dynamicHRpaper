@@ -30,7 +30,7 @@ df$age.quant = scale(df$phenos.enrollment)
 df$bmi.quant = scale(df$bmi)
 df$phenos.has_CAD = df$has_disease
 df$sex = ifelse(df$sex == "male", 1, 0)
-
+df$prscat=cut(df$prs.r,breaks=c(0,0.20,0.80,1))
 
 
 df$enroll_age_cat=cut(df$phenos.enrollment,breaks = c(0,45,50,55,60,65,70,75))
@@ -199,7 +199,7 @@ gg1=ggarrange(g_young$plot,g_mid$plot+labs(y=NULL),g_old$plot+labs(y=NULL),nrow=
 
 gg1
 
-ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.tiff",height=10,width = 18,create.dir = TRUE)
+ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.pdf",height=10,width = 18,create.dir = TRUE)
 ```
 
 ## return cumulative hazard for low and high of each age 
