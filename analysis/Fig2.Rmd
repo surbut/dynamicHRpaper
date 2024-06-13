@@ -1,24 +1,33 @@
 ---
-title: "prs_rel_abs_dis"
-author: "Your Name"
-date: "2023-05-21"
-output: workflowr::wflow_html
-editor_options:
-  chunk_output_type: console
+title: "Figure 2"
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
 ---
-
 ## Introduction
 
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE)
+knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE)
 
 ```
 
 
 ```{r}
-source("code/utils.R")
 setwd("~/dynamicHRpaper/")
+source("code/utils.R")
 fig_path="./Figs/Fig2/"
 
 
@@ -102,7 +111,7 @@ gp=ggplot(data=predp, aes(x=x*100, y=fit, ymin=lwr, ymax=upr, color=variable,fil
 # scale_color_manual(name="Age Group",values=c("<55 years"="deepskyblue","55-65 years"="deepskyblue3",">65 years"="deepskyblue4"))+
   theme_classic(base_size =20)#+theme(legend.position = "null")
 
-ggsave(gp,filename = paste0(fig_path,"gprs_abs_withleg.tiff"),dpi=300,height=6,width = 6)
+#ggsave(gp,filename = paste0(fig_path,"gprs_abs_withleg.tiff"),dpi=300,height=6,width = 6)
 
 
 
@@ -115,7 +124,7 @@ ga=ggplot(data=predp, aes(x=x*100, y=fit, ymin=lwr, ymax=upr, color=variable,fil
 # scale_color_manual(name="Age Group",values=c("<55 years"="deepskyblue","55-65 years"="deepskyblue3",">65 years"="deepskyblue4"))+
   theme_classic(base_size =20)+theme(legend.position = "null")
 
-ggsave(ga,filename = paste0(fig_path,"gprs_abs.tiff"),dpi=300,height=6,width = 6)
+#ggsave(ga,filename = paste0(fig_path,"gprs_abs.tiff"),dpi=300,height=6,width = 6)
 ggplotly(ga)
 ```
 
@@ -147,7 +156,7 @@ gp=ggplot(data=predr, aes(x=x*100, y=fit, ymin=lwr, ymax=upr, fill=variable,colo
 #scale_fill_manual(name="Age Group",values=c("<55"="deepskyblue","55-65"="deepskyblue3",">65"="deepskyblue4"))+scale_color_manual(name="Age Group",values=c("<55"="deepskyblue","55-65"="deepskyblue3",">65"="deepskyblue4"))+
   theme_classic(base_size =20)+theme(legend.position = "null")+guides(color="none")
 
-ggsave(gp,filename = paste0(fig_path,"gprs_rel.tiff"),dpi=300,height=6,width = 6)
+#ggsave(gp,filename = paste0(fig_path,"gprs_rel.tiff"),dpi=300,height=6,width = 6)
 ggplotly(gp)
 ```
 
@@ -155,9 +164,6 @@ ggplotly(gp)
 
 ```{r}
 library("ggridges")
-source("code/utils.R")
-
-df=readRDS("data/amit_df.rds")
 df$agecat=cut(df$phenos.enrollment,breaks=c(0,55,65,100),labels=c("<55","55-65",">65"))
 
 prs=ggplot(df, aes(x = prs_quant, y = agecat,fill=agecat)) + 
@@ -217,5 +223,5 @@ gp <- ggplot(data = predr, aes(x = x * 100, y = fit, ymin = lwr, ymax = upr, fil
 # Combine plots using ggpubr::ggarrange
 panel <- ggarrange(ga, prs, gp, ncol = 3, labels = c("A.", "B.", "C."),widths = c(5,8,5),heights = 5)
 
-ggsave(panel,file="Figs/Fig2/3_figure_panel.pdf",width = 12, height = 6, dpi = 600)
+#ggsave(panel,file="Figs/Fig2/3_figure_panel.pdf",width = 12, height = 6, dpi = 600)
 ```

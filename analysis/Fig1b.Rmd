@@ -1,16 +1,26 @@
 ---
 title: "Fig1b"
-author: "Your Name"
-date: "2023-03-12"
-output: workflowr::wflow_html
-editor_options:
-  chunk_output_type: console
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
 ---
 
 ## Introduction
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE,fig.path = "./Figs/")
+knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE,fig.path = "./Figs/")
 
 ```
 
@@ -132,9 +142,7 @@ colnames(hrmat)=colnames(ormat)=colnames(r2mat)=c("Polygenic risk score","LDL Ch
 
 
 ```{r new}
-
-# upperbound=data.frame(readRDS("output/hazards_rate_upperbound_fh_EQ.rds"))
-# lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_fh_EQ.rds"))
+setwd("~/dynamicHRpaper/")
 
 upperbound=data.frame(readRDS("output/hazards_rate_upperbound_fh_EQ_withPC_corrections.rds"))
 lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_fh_EQ_withPC_corrections.rds"))
@@ -211,12 +219,12 @@ h1=hr_fhs+theme_classic(base_size = 20)+tems
 # ggsave(h1,file="hr_fhs_nob.tiff",dpi = 300,width = 6,height = 6)
 
 r2=r2_fhs+theme_classic(base_size = 20)+theme(legend.position = "none")+tems
-saveRDS(r2,"output/r2fhs_withPC.rds")
+#saveRDS(r2,"output/r2fhs_withPC.rds")
 h1=h1+theme_classic(base_size = 20)+theme(legend.position = "none")+tems
-saveRDS(h1,"output/h1hs_withPC.rds")
+#saveRDS(h1,"output/h1hs_withPC.rds")
 
-ggsave(h1,file=paste0(fig_path,"hr_fhs.tiff"),dpi = 300,width = 6,height = 6)
-ggsave(r2,file=paste0(fig_path,"r2_fhs.tiff"),dpi = 300,width = 6,height = 6.1)
+#ggsave(h1,file=paste0(fig_path,"hr_fhs.tiff"),dpi = 300,width = 6,height = 6)
+#ggsave(r2,file=paste0(fig_path,"r2_fhs.tiff"),dpi = 300,width = 6,height = 6.1)
 ```
 
 ```{r}
@@ -269,7 +277,7 @@ print1=ggarrange(h1,hall+rremove("ylab"), ncol=2, common.legend = TRUE, legend="
 print2=ggarrange(r2_fhs,r2u+rremove("ylab"), ncol=2, common.legend = TRUE, legend="bottom",labels = c("A.","B."))
 
 
-ggsave(print1,filename = "Figs/Fig2/Fig1combined_eq_new_pc.pdf",dpi = 600,width = 12,height=8)
+#ggsave(print1,filename = "Figs/Fig2/Fig1combined_eq_new_pc.pdf",dpi = 600,width = 12,height=8)
 
-ggsave(print2,filename = "Figs/Fig2/Fig2combined_eq_new_pc.pdf",dpi = 600,width = 12,height=8)
+#ggsave(print2,filename = "Figs/Fig2/Fig2combined_eq_new_pc.pdf",dpi = 600,width = 12,height=8)
 ```

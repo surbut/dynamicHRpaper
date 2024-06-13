@@ -1,7 +1,20 @@
 ---
-title: "cumutlaitve final"
-output: html_document
-date: '2023-05-20'
+title: "Figure 3"
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
 ---
 
 ```{r setup, include=FALSE}
@@ -30,7 +43,7 @@ df$age.quant = scale(df$phenos.enrollment)
 df$bmi.quant = scale(df$bmi)
 df$phenos.has_CAD = df$has_disease
 df$sex = ifelse(df$sex == "male", 1, 0)
-df$prscat=cut(df$prs.r,breaks=c(0,0.20,0.80,1))
+
 
 
 df$enroll_age_cat=cut(df$phenos.enrollment,breaks = c(0,45,50,55,60,65,70,75))
@@ -93,6 +106,10 @@ colorRampPalette(c("#FEE6CE", "#FDAE6B", "#E6550D"))(3)),break.x.by = 5,
                           "High PCE, Intermediate PRS",
                           "High PCE, High PRS"))
 
+g_young
+```
+
+```{r}
 ###
 
 dmid=df[df$phenos.enrollment>55&df$phenos.enrollment<65,]
@@ -143,8 +160,12 @@ colorRampPalette(c("#FEE6CE", "#FDAE6B", "#E6550D"))(3)),
                           "High PCE, Low PRS",
                           "High PCE, Intermediate PRS",
                           "High PCE, High PRS"))
+g_mid
 ###
 
+```
+
+```{r}
 dold=df[df$phenos.enrollment>65,]
 dold$pce.age=scale(dold$ascvd_10y_accaha_all)
 dold$pce.r=rank(dold$pce.age)/length(dold$pce.age)
@@ -190,6 +211,7 @@ break.x.by = 5,
                           "High PCE:Intermediate PRS",
                           "High PCE:High PRS"))
 
+g_old
 ```
 
 ## alltogether
@@ -199,7 +221,7 @@ gg1=ggarrange(g_young$plot,g_mid$plot+labs(y=NULL),g_old$plot+labs(y=NULL),nrow=
 
 gg1
 
-ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.pdf",height=10,width = 18,create.dir = TRUE)
+#ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.tiff",height=10,width = 18,create.dir = TRUE)
 ```
 
 ## return cumulative hazard for low and high of each age 

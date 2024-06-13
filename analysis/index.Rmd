@@ -10,7 +10,7 @@ editor_options:
 
 Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, Urbut et al 2024.
 
-[Figure 1](Fig1.html) Here is the hazard rate and proportion of variation explained in the UK Biobank and 
+[Figure 1](Figure1.html) Here is the hazard rate and proportion of variation explained in the UK Biobank and 
 
 [Figure 1b](Fig1b.html) Here is the hazard rate and proportion of variation explained in the Framingham Offspring Cohort
 

@@ -1,10 +1,20 @@
 ---
 title: "Fig4"
-author: "Sarah Urbut"
-date: "2023-03-12"
-output: workflowr::wflow_html
-editor_options:
-  chunk_output_type: console
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
 ---
 
 ```{r setup, include=FALSE}
@@ -234,10 +244,11 @@ aucplot <- ggplot(m2, aes(x = Age, y = AUC, color = Model, ymin = AUC + se, ymax
 ggplotly(aucplot)
 #ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1)
 
-ggsave(ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1,labels = c("A","B","C")),file="figs/combined456_withPC.pdf",dpi = 600,width = 20,height = 10)
+#ggsave(ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1,labels = c("A","B","C")),file="figs/combined456_withPC.pdf",dpi = 600,width = 20,height = 10)
 ```
 
 ## statements
+
 ```{r eval=F}
 Conversely, individuals in the highest PCE decile had events 13.7 years later in life than those of the lowest PCE (Figure 4B, Supplementary Table 9, Online Figure 8). Among individuals with CAD occurring <55 years, 427 (39.3%) had high PRS but only 32 (2.9%) had high PCE. 
 
