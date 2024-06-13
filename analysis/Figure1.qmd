@@ -45,7 +45,7 @@ library(babynames)
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE)
+knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE)
 ```
 
 ## Hazard Ratios for the UK Biobank
@@ -182,7 +182,7 @@ ggsave(hr_ukb_all + theme(legend.position = "none"), filename = paste0(fig_path,
 ggsave(r2_ukb_all, filename = paste0(fig_path, "r2_ukb_all.tiff"), dpi = 300, width = 6, height = 6)
 ```
 
-Pooled Cohort Equations:
+## Pooled Cohort Equations:
 
 ```{r}
 # Plot HR for PCE
