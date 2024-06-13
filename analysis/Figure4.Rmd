@@ -207,7 +207,6 @@ levels(m$Model)[3]="Combined"
 
 m$se=m3$value
 
-ggplotly()
 ```
 
 ```{r}
