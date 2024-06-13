@@ -63,6 +63,7 @@ bar <- ggplot(data=r, aes(x=ints, y = value,fill = `Risk Stratification`)) + geo
   )#+geom_errorbar(aes(ymin = value-error, ymax = value+error), width = 0.3, position = "identity")
 
 
+ggplotly(bar)
 # 
 # 
 # ggplotly(p)
@@ -124,6 +125,11 @@ ageplot <- ggplot(r, aes(x = Decile, y = Age.of.Event, group = Score, fill = Sco
 
 
 
+ggplotly(ageplot)
+```
+
+
+```{r}
 ## now do AUCPlot
 
 ages=c(40,45,50,55,60,65,70,75)
@@ -201,6 +207,7 @@ levels(m$Model)[3]="Combined"
 
 m$se=m3$value
 
+ggplotly()
 ```
 
 ```{r}
@@ -225,7 +232,8 @@ aucplot <- ggplot(m2, aes(x = Age, y = AUC, color = Model, ymin = AUC + se, ymax
 
 # together
 
-ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1)
+ggplotly(aucplot)
+#ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1)
 
 ggsave(ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1,labels = c("A","B","C")),file="figs/combined456_withPC.pdf",dpi = 600,width = 20,height = 10)
 ```
