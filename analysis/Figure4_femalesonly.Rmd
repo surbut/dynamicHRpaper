@@ -1,0 +1,248 @@
+---
+title: "Fig4"
+author: "Sarah Urbut"
+date: "2023-03-12"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE,fig.path = "./Figs/")
+
+```
+
+## Vertical Venn
+
+```{r mergedbar}
+setwd("~/dynamicHRpaper/")
+source("code/utils.R")
+
+df=data.frame(readRDS("output/amit_df_with_pc_correction.rds"))
+df$chd=df$phenos.has_CAD
+
+df=df[df$sex=="female",]
+
+df$AGE1=df$phenos.enrollment
+
+# m=rbind(df[,c("AGE1","prs.r","ascvd_10y_accaha","chd")],dff[,c("AGE1","prs.r","ascvd_10y_accaha","chd")])
+# 
+# df=m
+# df=df[df$AGE1>=40&df$AGE1<=70,]
+
+library(scales)
+hex <- hue_pal()(6)
+
+
+i=df %>% mutate(ints=cut(AGE1,breaks=c(39.99,45,50,55,60,65,70,75)))
+i=i[!is.na(i$ints),]
+fulla=i%>%group_by(ints)%>%summarise("PRS"=sum(chd==1&ascvd_10y_accaha_all<7.5&prs.r>0.80)/sum(chd==1),"PCE"=sum(chd==1&ascvd_10y_accaha_all>7.5&prs.r<0.80)/sum(chd==1),"Both"=sum(chd==1&ascvd_10y_accaha_all>7.5&prs.r>0.80)/sum(chd==1),"n"=length(ints))
+# 
+errors=sqrt(fulla[,c(2:4)]*(1-fulla[,c(2:4)])/fulla$n)
+errors=cbind("ints"=fulla$ints,errors)
+colnames(errors)=colnames(fulla)[1:4]
+hex <- hue_pal()(6)
+# 
+# mat=as.matrix(fulla[,c(2:3)])*100
+# 
+# barplot(t(mat),beside = T,names=fulla$ints,legend=F,col=c(hex[c(1,3)]),main="FHS+UKB Incident Cases Correctly Predicted",ylab="Proportion of Incident Cases Correctly Predicted",las=2)
+# legend("topleft",legend=c("PRS only","PCE only"),fill =c(hex[c(1,3)]))
+# 
+r=melt(data.frame(fulla[,c(1,2,4,3)]),id.vars = "ints")
+s=melt(data.frame(errors),id.vars = "ints")
+
+
+r$lower=r$value-s$value
+r$upper=r$value+s$value
+r$ints=rep(c("40-45","45-50","50-55","55-60","60-65","65-70","70-75"),3)
+names(r)[2]="Risk Stratification"
+bar <- ggplot(data=r, aes(x=ints, y = value,fill = `Risk Stratification`)) + geom_bar(stat="identity") +labs(y = "Proportion of Incident Cases Predicted",x="Age,years")+scale_fill_manual(values=c("tomato",hex[3],"cornflowerblue"),labels=c("Genomic","Genomic and Clinical","Clinical"))+theme_classic(base_size =20 )+
+  theme(
+    axis.text.x = element_text(angle = 90, size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title = element_text(size = 20)
+  )#+geom_errorbar(aes(ymin = value-error, ymax = value+error), width = 0.3, position = "identity")
+
+
+ggplotly(bar)
+# 
+# 
+# ggplotly(p)
+# ggplot2::ggsave(p,filename = "Figs/Fig4/proportion_plots_ukbalone.tiff",dpi = 300,height = 5,width = 8)
+
+```
+# age of event by prs.rank
+
+```{r}
+
+a=df%>%group_by(round(prs.r,1))%>%summarise(mean=mean(phenos.CAD_censor_age[phenos.has_CAD==1]),sd=sd(phenos.CAD_censor_age[phenos.has_CAD==1]),n=sum(phenos.has_CAD==1))
+
+a=data.frame(a)
+colnames(a)=c("PRS.percentile","Age.of.Event","sd","n")
+a$se=a$sd/sqrt(a$n)
+
+a=a[-1,]
+
+p=a
+p$group=rep("PRS",length(a))
+
+a=df%>%group_by(round(ascvd.r,1))%>%summarise(mean=mean(phenos.CAD_censor_age[phenos.has_CAD==1]),sd=sd(phenos.CAD_censor_age[phenos.has_CAD==1]),n=sum(phenos.has_CAD==1))
+
+a=data.frame(a)
+a=a[-1,]
+colnames(a)=c("PCE.percentile","Age.of.Event","sd","n")
+a$se=a$sd/sqrt(a$n)
+a$score=rep("PCE",length(a[,1]))
+a$score=as.factor(a$score)
+
+
+colnames(a)=colnames(p)=c("PRS.Decile","Age.of.Event","sd","n","se","Score")
+r=rbind(p,a)
+
+
+r$Decile=rep(seq(1,10),2)
+
+r$Score=factor(r$Score,levels=c("PCE","PRS"),labels = c("PCE","PRS"))
+ageplot <- ggplot(r, aes(x = Decile, y = Age.of.Event, group = Score, fill = Score, col = Score)) + 
+  geom_point() +
+  geom_errorbar(aes(ymin = Age.of.Event - se, ymax = Age.of.Event + se), width = 0.02) +
+  #ylim(50, 71) +
+  theme_classic() +
+  #scale_fill_manual(values=c("tomato","cornflowerblue")
+  stat_smooth() +
+  ylab("Mean Age of Event, years") +
+  xlab("PRS Decile") +
+  scale_fill_manual(values = c("cornflowerblue", "tomato")) +
+  theme(
+    axis.text = element_text(size = 20),
+    axis.title = element_text(size = 20),
+    legend.text = element_text(size = 20),
+    legend.title = element_text(size = 20)
+  ) +
+  scale_color_manual(values = c("cornflowerblue", "tomato")) +
+  scale_x_continuous(breaks = seq(0, 10, 1)) +
+  labs(col = "Risk Stratification") +
+  guides(fill = "none")
+
+
+
+ggplotly(ageplot)
+```
+
+
+```{r}
+## now do AUCPlot
+
+ages=c(55,60,65,70,75)
+
+df$prscat <- cut(df$prs.r, breaks=c(0, 0.20,0.80,1), labels=c("low", "intermediate","high"))
+set.seed(456)
+aucmat=matrix(NA,nrow=length(ages)-1,ncol=3)
+semat=matrix(NA,nrow=length(ages)-1,ncol=3)
+for(i in 1:(length(ages)-1))
+{
+  par(mfrow=c(1,2))
+  #which(df$phenos.enrollment>ages[i]&df$phenos.enrollment<ages[i+1])
+  d=df[which(df$phenos.enrollment>ages[i]&df$phenos.enrollment<ages[i+1]),]
+  indices=sample(nrow(d))
+  
+  d_train=d[indices[1:(length(indices)/2)],]
+  d_test=d[indices[(length(indices)/2+1):length(indices)],]
+  model_glm = glm(phenos.has_CAD  ~ prscat, data = d_train, family = "binomial")
+  
+  test_prob = predict(model_glm, newdata = d_test, type = "response")
+  test_roc = roc(d_test$phenos.has_CAD~ test_prob, plot = F,main=paste0("PRS,age",ages[i],"to",ages[i+1]))
+  aucmat[i,1]=test_roc$auc
+  semat[i,1]=sqrt(var(test_roc))
+  
+  
+  model_glm = glm(phenos.has_CAD  ~ ascvdcat_all, data = d_train, family = "binomial")
+  
+  test_prob = predict(model_glm, newdata = d_test, type = "response")
+  test_roc = roc(d_test$phenos.has_CAD~ test_prob, plot = F,main=paste0("PCE,age",ages[i],"to",ages[i+1]))
+  aucmat[i,2]=test_roc$auc
+  semat[i,2]=sqrt(var(test_roc))
+  
+  model_glm = glm(phenos.has_CAD  ~ ascvdcat_all+prscat, data = d_train, family = "binomial")
+  
+  test_prob = predict(model_glm, newdata = d_test, type = "response")
+  test_roc = roc(d_test$phenos.has_CAD~ test_prob, plot = F,main=paste0("PCE+PRS,age",ages[i],"to",ages[i+1]))
+  aucmat[i,3]=test_roc$auc
+  semat[i,3]=sqrt(var(test_roc))
+}
+rownames(aucmat)=c("55-60","60-65","65-70","70-75")
+
+m=melt(aucmat,id.vars="Age")
+
+###d=df[which(df$phenos.enrollment>39&df$phenos.enrollment<55),]
+### for just under 55, [7,]          NA          NA          NA
+# > aucmat[,3]-aucmat[,2]
+# [1] 0.06322067         NA         NA         NA         NA         NA
+# [7]         NA
+# > (aucmat[,3]-aucmat[,2])+1.96*semat[,3]
+# [1] 0.07802344         NA         NA         NA         NA         NA
+# [7]         NA
+# > (aucmat[,3]-aucmat[,2])-1.96*semat[,3]
+# [1] 0.04840789 
+
+###
+# d=df[which(df$phenos.enrollment>55),]
+# aucmat[i,3]-aucmat[i,2]
+# 
+# #Adding PRS to the clinical model augments the AUC across the life course; however, the largest augmentation in discriminative capacity is observed at ages less than 55 years – the AUC is increased by nearly 10% in the 40-45 age group, XX% in the 45–50-year group and XX% in the 50-55 year age group (Figure 6).##
+# 
+# aucmat[,3]-aucmat[,2]
+
+m3=melt(semat)
+
+m[which(m$X2==1),2]="PRS"
+m[which(m$X2==2),2]="PCE"
+m[which(m$X2==3),2]="PRS+PCE"
+
+names(m)=c("Age","Model","AUC")
+m$Model=as.factor(m$Model)
+levels(m$Model)[1]="Genomic"
+levels(m$Model)[2]="Non Genomic"
+levels(m$Model)[3]="Combined"
+
+
+m$se=m3$value
+
+```
+
+```{r}
+tgt = c("Non Genomic","Combined")
+m2 = m %>% filter(Model %in% tgt)
+m2$Model=factor(m2$Model)
+levels(m2$Model)=c("Clinical","Clinical + Genomic")
+
+aucplot <- ggplot(m2, aes(x = Age, y = AUC, color = Model, ymin = AUC + se, ymax = AUC - se)) +
+  geom_point() +
+  geom_line(aes(group = Model, color = Model), linewidth = 3) +
+  geom_pointrange() +
+  ylim(0.5, 0.8) +
+  scale_color_manual(values = c("cornflowerblue", hex[3])) +
+  theme_classic(base_size = 20) +
+  theme(
+    axis.text.x = element_text(angle = 90, size = 20),
+    axis.text.y = element_text(size = 20),
+    axis.title = element_text(size = 20)
+  ) +
+  labs(x = "Age, years", y = "AUC of ROC")
+
+# together
+
+ggplotly(aucplot)
+ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1)
+
+ggsave(ggarrange(bar,ageplot,aucplot,common.legend = TRUE,nrow=1,labels = c("A","B","C")),file="figs/combined456_withPC_femaleonly.pdf",dpi = 600,width = 20,height = 10)
+```
+
+## statements
+```{r eval=F}
+Conversely, individuals in the highest PCE decile had events 13.7 years later in life than those of the lowest PCE (Figure 4B, Supplementary Table 9, Online Figure 8). Among individuals with CAD occurring <55 years, 427 (39.3%) had high PRS but only 32 (2.9%) had high PCE. 
+
+# table(df$prscat[df$phenos.has_CAD==1&df$phenos.CAD_censor_age<55])
+
+# table(df$ascvd_cat_all[df$phenos.has_CAD==1&df$phenos.CAD_censor_age<55])
+```

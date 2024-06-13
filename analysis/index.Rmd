@@ -35,7 +35,9 @@ Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, 
 
 [Lipid Plot](StatinUse.html) Here I show detailed analysis of statin use by age of enrollment in the FOS.
 
-[Sex Plot](Sex_analyses.html) Here I show detailed analysis of hazard ratios by sex in FOS and age of enrollment by menopause.
+[Age of Menopause Plot](Sex_analyses.html) Here I show detailed analysis of hazard ratios by sex in FOS and age of enrollment by menopause.
+
+[Sex Specific Thresholding](Figure4_femalesonly.html) Here I show detailed analysis of proportion of events assessed, Age of event, and AUC using females only.
 
 # Tables
 
