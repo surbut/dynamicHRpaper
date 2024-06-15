@@ -1,16 +1,27 @@
 ---
 title: "Verify Plots"
-author: "Sarah Urbut"
-date: "2023-03-12"
-output: workflowr::wflow_html
-editor_options:
-  chunk_output_type: console
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
 ---
 
 
 
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE,message = FALSE,warning = FALSE)
+knitr::opts_chunk$set(warning = FALSE,message = FALSE,message = FALSE,warning = FALSE)
 
 ```
 
@@ -25,6 +36,7 @@ library(tidyr)
 library("ggridges")
 library(ggsci)
 
+setwd("~/dynamicHRpaper/")
 prs=fread("~/Dropbox/phenotypes/CAD_prs.txt")
 prs=na.omit(prs)
 
@@ -78,6 +90,7 @@ library('data.table')
 library("dplyr")
 library("ggplot2")
 library(tidyr)
+setwd("~/dynamicHRpaper/")
 
 prs=fread("~/Dropbox/phenotypes/CAD_prs.txt")
 prs=na.omit(prs)
@@ -196,7 +209,7 @@ p4=p4 + ggtitle("Study Population, NO PC, Scaled to General Population")
 library(cowplot)
 combined_plot <- plot_grid(p1, p2,p3,p4,labels = "AUTO")
 combined_plot
-ggsave(combined_plot,file="Figs/Combined_density.png",dpi=300)
+#ggsave(combined_plot,file="Figs/Combined_density.png",dpi=300)
 ```
 Finally, we can do qqplots showing scaling overall:
 

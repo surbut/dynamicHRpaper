@@ -1,7 +1,20 @@
 ---
 title: "Statin Use"
-output: html_document
-date: '2023-02-26'
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
 ---
 
 ```{r setup, include=FALSE}
@@ -39,6 +52,8 @@ library("plotly")
 ```
 
 ```{r}
+
+setwd("~/dynamicHRpaper/")
 f2=readRDS("output/statinuse.rds")
 
 statin_summary <- f2 %>%
