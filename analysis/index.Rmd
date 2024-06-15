@@ -29,7 +29,7 @@ Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, 
 
 [Proportional Hazards](zph.html) Here is the demonstration cox PH is violated with typical model.
 
-[Cum Events](cumulativeinc.html) Here I plot cumulative events by ACVD strata or by age.
+[Cumulative Events](cumulativeinc.html) Here I plot cumulative events by ACVD strata or by age.
 
 [Density Plots](verifyplots.html) Here I show PRS distirbution for overall cohort, and for ours, with different scaling.
 
