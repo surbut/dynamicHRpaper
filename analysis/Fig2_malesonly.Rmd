@@ -1,0 +1,227 @@
+---
+title: "Figure 2"
+format: 
+  html:
+    toc: true
+    toc-location: body
+date: 3-7-2024
+author:
+  - name: "Sarah Urbut"
+embed-resources: true
+toc: true
+toc-expand: 2
+theme: lightly
+toc-title: Contents
+page-layout: full
+code-fold: true
+editor: visual
+---
+
+## Introduction
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE)
+
+```
+
+```{r}
+setwd("~/dynamicHRpaper/")
+source("code/utils.R")
+fig_path="./Figs/Fig2/"
+
+
+df=readRDS("data/amit_df_with_pc_correction.rds")
+df=df[df$sex=="male",]
+
+dt=df[,c("prs.r","phenos.has_CAD","phenos.enrollment")]
+names(dt)=c("x","y","phenos.enrollment")
+
+
+my <- glm(formula =  y~x,data = dt[which(dt$phenos.enrollment<55),],family="binomial")
+
+
+newdf=data.frame(x=seq(0,1,by=0.01),y=rep(1,101),phenos.enrollment=rep(1,101))
+preds <- predict(my, newdata = newdf, type = "response", se.fit = TRUE)
+
+critval <- 1.96 ## approx 95% CI
+upr <- preds$fit + (critval * preds$se.fit)
+lwr <- preds$fit - (critval * preds$se.fit)
+fit <- preds$fit
+
+predy=data.frame(fit,upr,lwr)
+
+rm(preds)
+rm(my)
+####################
+mm <- glm(formula =  y~ x #+ phenos.enrollment, 
+                     ,data = dt[which(dt$phenos.enrollment<65&dt$phenos.enrollment>55),],family="binomial")
+
+
+preds <- predict(mm, newdata = newdf, type = "response", se.fit = TRUE)
+
+critval <- 1.96 ## approx 95% CI
+upr <- preds$fit + (critval * preds$se.fit)
+lwr <- preds$fit - (critval * preds$se.fit)
+fit <- preds$fit
+
+predm=data.frame(fit,upr,lwr)
+
+rm(preds)
+rm(mm)
+#########
+mo<- glm(formula =  y~ x #+ phenos.enrollment, 
+                     ,data = dt[which(dt$phenos.enrollment>65),],family="binomial")
+
+
+
+preds <- predict(mo, newdata = newdf, type = "response", se.fit = TRUE)
+
+critval <- 1.96 ## approx 95% CI
+upr <- preds$fit + (critval * preds$se.fit)
+lwr <- preds$fit - (critval * preds$se.fit)
+fit <- preds$fit
+
+
+predo=data.frame(fit,upr,lwr)
+rm(preds)
+rm(mo)
+
+predf=rbind(predy,predm,predo)
+## link scale
+#predr=exp(predf)/(1+exp(predf))
+predr=predf
+predr$variable=c(rep("<55",101),rep("55-65",101),rep(">65",101))
+predr$x=rep(newdf$x,3)
+
+
+predr$variable=  factor(
+    predr$variable,
+    levels = c("<55","55-65",">65"),labels = c(
+      "<55 years","55-65 years",">65 years"
+    )
+  )
+
+predp=predr
+gp=ggplot(data=predp, aes(x=x*100, y=fit, ymin=lwr, ymax=upr, color=variable,fill=variable)) + 
+ geom_line(linewidth=2) + 
+ geom_ribbon(alpha=0.3) + 
+ xlab("Polygenic score percentile") + 
+ ylab("Absolute risk of coronary artery disease")+scale_fill_futurama(name="Age")+scale_color_futurama(name="Age")+
+# scale_fill_manual(name="Age Group",values=c("<55"="deepskyblue","55-65"="deepskyblue3",">65"="deepskyblue4"))+
+# scale_color_manual(name="Age Group",values=c("<55 years"="deepskyblue","55-65 years"="deepskyblue3",">65 years"="deepskyblue4"))+
+  theme_classic(base_size =20)#+theme(legend.position = "null")
+
+#ggsave(gp,filename = paste0(fig_path,"gprs_abs_withleg.tiff"),dpi=300,height=6,width = 6)
+
+
+
+ga=ggplot(data=predp, aes(x=x*100, y=fit, ymin=lwr, ymax=upr, color=variable,fill=variable)) + 
+ geom_line(linewidth=2) + 
+ geom_ribbon(alpha=0.3) + 
+ xlab("Polygenic score percentile") + 
+ ylab("Absolute risk of coronary artery disease")+scale_fill_futurama(name="Age Group")+scale_color_futurama(name="Age")+guides(color="none")+
+# scale_fill_manual(name="Age Group",values=c("<55"="deepskyblue","55-65"="deepskyblue3",">65"="deepskyblue4"))+
+# scale_color_manual(name="Age Group",values=c("<55 years"="deepskyblue","55-65 years"="deepskyblue3",">65 years"="deepskyblue4"))+
+  theme_classic(base_size =20)+theme(legend.position = "null")
+
+#ggsave(ga,filename = paste0(fig_path,"gprs_abs.tiff"),dpi=300,height=6,width = 6)
+ggplotly(ga)
+```
+
+#### relative fits
+
+```{r}
+predy$fit=predy$fit/min(predy$fit)
+predy$lwr=predy$lwr/min(predy$lwr)
+predy$upr=predy$upr/min(predy$upr)
+
+predm$fit=predm$fit/min(predm$fit)
+predm$lwr=predm$lwr/min(predm$lwr)
+predm$upr=predm$upr/min(predm$upr)
+
+predo$fit=predo$fit/min(predo$fit)
+predo$lwr=predo$lwr/min(predo$lwr)
+predo$upr=predo$upr/min(predo$upr)
+
+
+predr=rbind(predy,predm,predo)
+predr$variable=c(rep("<55",101),rep("55-65",101),rep(">65",101))
+predr$x=rep(newdf$x,3)
+
+gp=ggplot(data=predr, aes(x=x*100, y=fit, ymin=lwr, ymax=upr, fill=variable,color=variable)) + 
+  geom_line(linewidth=2) + 
+ geom_ribbon(alpha=0.3) + 
+ xlab("Polygenic score percentile") + 
+ ylab("Relative Risk")+scale_fill_futurama(name="Age")+scale_color_futurama(name="Age")+
+#scale_fill_manual(name="Age Group",values=c("<55"="deepskyblue","55-65"="deepskyblue3",">65"="deepskyblue4"))+scale_color_manual(name="Age Group",values=c("<55"="deepskyblue","55-65"="deepskyblue3",">65"="deepskyblue4"))+
+  theme_classic(base_size =20)+theme(legend.position = "null")+guides(color="none")
+
+#ggsave(gp,filename = paste0(fig_path,"gprs_rel.tiff"),dpi=300,height=6,width = 6)
+ggplotly(gp)
+```
+
+# density
+
+```{r}
+library("ggridges")
+df$agecat=cut(df$phenos.enrollment,breaks=c(0,55,65,100),labels=c("<55","55-65",">65"))
+
+prs=ggplot(df, aes(x = prs_quant, y = agecat,fill=agecat)) + 
+  geom_density_ridges() + theme_ridges()+labs(x = "Genomic Risk Quantile", y = "Density",fill="Age Category")+scale_fill_futurama()+theme_classic()
+
+prs
+```
+
+## save
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+
+# Plot 1: "ga"
+ga <- ggplot(data = predp, aes(x = x * 100, y = fit, ymin = lwr, ymax = upr, fill = variable, color = variable)) +
+  geom_line(linewidth = 2) +
+  geom_ribbon(alpha = 0.3) +
+  xlab("Polygenic score percentile") +
+  ylab("Absolute risk of coronary artery disease") +
+  scale_fill_futurama(name = "Age Group") +
+  scale_color_futurama(name = "Age") +
+  theme_classic(base_size = 15) +
+  theme(legend.position = "none", 
+        axis.text = element_text(size = 15), 
+        axis.title = element_text(size = 15),
+        axis.ticks.length = unit(0.2, "cm"))
+
+# Plot 2: "prs" with legend
+prs <- ggplot(df, aes(x = prs_quant, y = agecat, fill = agecat)) +
+  geom_density_ridges() +
+  theme_ridges() +
+  labs(x = "Polygenic Score", y = "Density", fill = "Age Category") +
+  scale_fill_futurama() +
+  theme_classic(base_size = 15) +
+  theme(legend.position = "right", 
+        legend.text = element_text(size = 15), 
+        legend.title = element_text(size = 15),
+        axis.text = element_text(size = 15), 
+        axis.title = element_text(size = 15),
+        axis.ticks.length = unit(0.2, "cm"))
+
+# Plot 3: "gp"
+gp <- ggplot(data = predr, aes(x = x * 100, y = fit, ymin = lwr, ymax = upr, fill = variable, color = variable)) +
+  geom_line(linewidth = 2) +
+  geom_ribbon(alpha = 0.3) +
+  xlab("Polygenic score percentile") +
+  ylab("Relative Risk") +
+  scale_fill_futurama(name = "Age") +
+  scale_color_futurama(name = "Age") +
+  theme_classic(base_size = 15) +
+  theme(legend.position = "none", 
+        axis.text = element_text(size = 15), 
+        axis.title = element_text(size = 15),
+        axis.ticks.length = unit(0.2, "cm"))
+
+# Combine plots using ggpubr::ggarrange
+panel <- ggarrange(ga, prs, gp, ncol = 3, labels = c("A.", "B.", "C."),widths = c(5,8,5),heights = 5)
+
+ggsave(panel,file="Figs/Fig2/3_figure_panel_male_only.pdf",width = 12, height = 6, dpi = 600)
+```
