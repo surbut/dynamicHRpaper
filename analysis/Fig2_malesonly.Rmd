@@ -19,6 +19,8 @@ editor: visual
 
 ## Introduction
 
+Here we repeat the analyses of Figure 2 in Males only.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE)
 
@@ -223,5 +225,5 @@ gp <- ggplot(data = predr, aes(x = x * 100, y = fit, ymin = lwr, ymax = upr, fil
 # Combine plots using ggpubr::ggarrange
 panel <- ggarrange(ga, prs, gp, ncol = 3, labels = c("A.", "B.", "C."),widths = c(5,8,5),heights = 5)
 
-ggsave(panel,file="Figs/Fig2/3_figure_panel_male_only.pdf",width = 12, height = 6, dpi = 600)
+# ggsave(panel,file="Figs/Fig2/3_figure_panel_male_only.pdf",width = 12, height = 6, dpi = 600)
 ```

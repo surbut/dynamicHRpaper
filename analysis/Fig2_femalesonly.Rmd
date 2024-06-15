@@ -19,6 +19,8 @@ editor: visual
 
 ## Introduction
 
+Here we repeat the analyses of Figure 2 in Females only.
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE)
 

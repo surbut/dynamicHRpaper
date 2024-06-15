@@ -39,6 +39,12 @@ Welcome to a detailed reproduction of all analyses in the Dynamic Hazard paper, 
 
 [Sex Specific Thresholding](Figure4_femalesonly.html) Here I show detailed analysis of proportion of events assessed, Age of event, and AUC using females only.
 
+[Sex Specific Thresholding](Fig2_femalesonly.html) Here I show detailed analysis of the relationships between absolute and relative PRS in females only.
+
+[Sex Specific Thresholding](Fig2_malesonly.html) Here I show detailed analysis of the relationships between absolute and relative PRS in males only.
+
+
+
 # Tables
 
 We also have a variety of exlucsion tables and summary tables 
