@@ -21,8 +21,8 @@ editor: visual
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
 ## Cumulative incidence plot
+
 ```{r,eval=T,echo=F,warning=FALSE,message=FALSE}
 setwd("~/dynamicHRpaper//")
 library(survival)
@@ -53,13 +53,11 @@ df$censor_age_cat=cut(df$phenos.CAD_censor_age,breaks = c(0,45,50,55,60,65,70,75
 library(ggplot2)
 ```
 
-
 # Age cat specific plots
 
 ## interaction
 
 # Here we break into three age groups and stratify by PRS, asking about resolution by PRS:
-
 
 ```{r interactionall}
 dyoung=df[df$phenos.enrollment<55,]
@@ -79,13 +77,13 @@ g_young=ggsurvplot(fit,
            censor=FALSE,
           
            xlim = c(40, 67),
-           ylim=c(0,0.6),
+           ylim=c(0,0.4),
            
             #xlab = "Time since Enrollment",
            xlab = "Time of Event (Age)",
            ylab = "Cumulative Hazard of Incident CAD",
            #ylim=c(0,0.15),
-           title = "Enrollment Age <55",
+           title = "Enrollment Age <55 yrs",
           legend.title = "Genomic and Clinical Risk Strata",
           ggtheme = theme_classic2(base_size=18),
 palette=c(colorRampPalette(c("#DEEBF7", "#9ECAE1", "#3182BD"))(3),
@@ -131,12 +129,12 @@ g_mid=ggsurvplot(fit,
            fun="cumhaz",
            #xlim = c(0, 15), 
            xlim = c(55, 80),
-           ylim=c(0,0.6),
+           ylim=c(0,0.4),
           #xlab = "Time since Enrollment",
            xlab = "Time of Event (Age)",
            ylab = "Cumulative Hazard",
            #ylim=c(0,0.15),
-           title = "Enrollment Age 55-65",
+           title = "Enrollment Age 55-65 yrs.",
           legend.title = "PRS:PCE Rank",
           ggtheme = theme_classic2(base_size=18),
            #font.family = "Arial",
@@ -185,12 +183,12 @@ g_old=ggsurvplot(fit,
            fun="cumhaz",
            #xlim = c(0, 15), 
            xlim = c(65, 85),
-           ylim=c(0,0.6),
+           ylim=c(0,0.4),
             #xlab = "Time since Enrollment",
            xlab = "Time of Event (Age)",
            #ylab = "Cumulative Hazard",
            #ylim=c(0,0.15),
-           title = "Enrollment Age >65",
+           title = "Enrollment Age >65 yrs",
           legend.title = "PRS:PCE Rank",
           ggtheme = theme_classic2(base_size=18),
            #font.family = "Arial",
@@ -215,16 +213,17 @@ g_old
 ```
 
 ## alltogether
+
 ```{r}
 
-gg1=ggarrange(g_young$plot,g_mid$plot+labs(y=NULL),g_old$plot+labs(y=NULL),nrow=1,ncol=3,labels=c("A.","B.","C."),common.legend = T,legend="right")
+gg1=ggarrange(g_young$plot,g_mid$plot+labs(y=NULL),g_old$plot+labs(y=NULL),nrow=1,ncol=3,labels=c("A.","B.","C."),common.legend = T,legend="bottom")
 
 gg1
 
-#ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.tiff",height=10,width = 18,create.dir = TRUE)
+ggsave(gg1,dpi=300,filename = "Figs/Fig3/interaction_time_byage_withPCS.tiff",height=10,width = 20,create.dir = TRUE)
 ```
 
-## return cumulative hazard for low and high of each age 
+## return cumulative hazard for low and high of each age
 
 ```{r}
 get_cumI=function(ggsurvplot,stratum){
