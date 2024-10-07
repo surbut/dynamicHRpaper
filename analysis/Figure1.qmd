@@ -17,7 +17,6 @@ code-fold: true
 editor: visual
 ---
 
-
 ```{r,echo=F,message=FALSE}
 library("dplyr")
 library("tidyverse")
@@ -48,7 +47,7 @@ knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE)
 
 ## Hazard Ratios for the UK Biobank
 
-** Here we plot hazard ratios by age of enrollment
+\*\* Here we plot hazard ratios by age of enrollment
 
 ```{r chunkenew}
 # Set working directory
@@ -61,9 +60,9 @@ dat <- df %>%
   summarise(count = n()) %>%
   slice(3:32)
 
-hazards <- readRDS("output/hazards_rate_UKB_amit_EQ_withPCcorrection.rds")
-upperbound <- readRDS("output/hazards_rate_upperbound_amit_EQ_withPCcorrection.rds")
-lowerbound <- readRDS("output/hazards_rate_lowerbound_amit_EQ_withPCcorrection.rds")
+hazards <- readRDS("output/hazards_rate_UKB_amit_EQ.rds")
+upperbound <- readRDS("output/hazards_rate_upperbound_amit_EQ.rds")
+lowerbound <- readRDS("output/hazards_rate_lowerbound_amit_EQ.rds")
 
 # Convert hazards to data frame
 hazards_df <- as.data.frame(hazards)
@@ -121,7 +120,7 @@ r2s$variable <- factor(r2s$variable, levels = factor_levels)
 
 # Save reshaped data
 # write.csv(reshape(haz, direction = "wide", idvar = "age", timevar = "variable"), "output/hrindex_ukb_eq.csv", row.names = FALSE)
-# write.csv(reshape(r2s, direction = "wide", idvar = "age", timevar = "variable"), "output/r2index_ukb_eq.csv", row.names = FALSE)
+# write.csv(reshape(r2s, direction = "wide", idvar = "age", timevar = "variable"), "output/r2index_ukb_eq_ateq.csv", row.names = FALSE)
 ```
 
 ## Hazard Ratio and proportion of variation explained:
@@ -158,11 +157,12 @@ r2_ukb_all <- r2s %>%
 
 # Save plots
 # saveRDS(hr_ukb_all, "output/hall_withPC.rds")
-# saveRDS(r2_ukb_all, "output/r2_withPC.rds")
+# saveRDS(r2_ukb_all, "output/r2_withPC_eq.rds")
 
 ```
 
 Interactive Plots
+
 ```{r fillF,echo=F}
 # Interactive HR plot
 ggplotly(hr_ukb_all)
@@ -175,8 +175,8 @@ ggplotly(r2_ukb_all)
 
 ```{r,eval=F}
 fig_path <- "./Figs/Fig1/"
-ggsave(hr_ukb_all, filename = paste0(fig_path, "hr_ukb_leg.tiff"), dpi = 300, width = 10, height = 6)
-ggsave(hr_ukb_all + theme(legend.position = "none"), filename = paste0(fig_path, "hr_ukb_all_noleg.tiff"), dpi = 300, width = 6, height = 6)
+# ggsave(hr_ukb_all, filename = paste0(fig_path, "hr_ukb_leg.tiff"), dpi = 300, width = 10, height = 6)
+# ggsave(hr_ukb_all + theme(legend.position = "none"), filename = paste0(fig_path, "hr_ukb_all_noleg.tiff"), dpi = 300, width = 6, height = 6)
 ggsave(r2_ukb_all, filename = paste0(fig_path, "r2_ukb_all.tiff"), dpi = 300, width = 6, height = 6)
 ```
 
@@ -241,5 +241,3 @@ m <- cbind(r2s[, 1:2], round(r2s[, 3], 2))
 colnames(m) <- colnames(r2s)
 DT::datatable(m)
 ```
-
-

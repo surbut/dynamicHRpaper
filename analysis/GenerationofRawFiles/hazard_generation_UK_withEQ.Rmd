@@ -369,9 +369,9 @@ hazards[1, "dm.HR"] = upperbound[1,7]=lowerbound[1,7]=NA
 #hazards[2, "dm.HR"] = NA
 #saveRDS(hazards,"~/Dropbox/hazards_rate_UKB_mixed.rds")
 #saveRDS(hazards,"~/Dropbox/hazards_rate_UKBleq.rds")
-#(hazards,"output/hazards_rate_UKB_amit_EQ.rds")
+saveRDS(hazards,"output/hazards_rate_UKB_amit_EQ.rds")
 
-saveRDS(hazards,file = "output/hazards_rate_UKB_amit_EQ_withPCcorrection.rds")
+#saveRDS(hazards,file = "output/hazards_rate_UKB_amit_EQ_withPCcorrection_2.rds")
 
 colnames(upperbound) = colnames(lowerbound)=c(
   "prs.se",
@@ -395,9 +395,9 @@ colnames(upperbound) = colnames(lowerbound)=c(
 
 # 
 # 
-# saveRDS(lowerbound,"output/hazards_rate_lowerbound_amit_EQ.rds")
-# saveRDS(upperbound,"output/hazards_rate_upperbound_amit_EQ.rds")
+saveRDS(lowerbound,"output/hazards_rate_lowerbound_amit_EQ.rds")
+saveRDS(upperbound,"output/hazards_rate_upperbound_amit_EQ.rds")
 
-saveRDS(lowerbound,file = "output/hazards_rate_lowerbound_amit_EQ_withPCcorrection.rds")
-saveRDS(upperbound,file = "output/hazards_rate_upperbound_amit_EQ_withPCcorrection.rds")
+#saveRDS(lowerbound,file = "output/hazards_rate_lowerbound_amit_EQ_withPCcorrection_2.rds")
+#saveRDS(upperbound,file = "output/hazards_rate_upperbound_amit_EQ_withPCcorrection_2.rds")
 ```

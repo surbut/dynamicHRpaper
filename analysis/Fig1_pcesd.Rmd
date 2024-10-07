@@ -42,13 +42,20 @@ library(babynames)
 
 
 ```{r chunkenew}
-df=readRDS("output/amit_df.rds")
+df=readRDS("data/amit_df.rds")
 dat=data.frame(df %>%group_by(round(phenos.enrollment,0)) %>%summarise(length(phenos.enrollment)))[c(3:32),]
 
 
-hazards=data.frame(readRDS("output/hazards_rate_UKB_amit_PCEQC.rds"))
-upperbound=data.frame(readRDS("output/hazards_rate_upperbound_amit_PCEQ.rds"))
-lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_amit_PCEQ.rds"))
+# hazards=data.frame(readRDS("output/hazards_rate_UKB_amit_PCEQC.rds"))
+# # upperbound=data.frame(readRDS("output/hazards_rate_upperbound_amit_PCEQ.rds"))
+# # lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_amit_PCEQ.rds"))
+
+
+
+hazards=data.frame(readRDS("output/hazards_rate_UKB_amit_EQ_withPCcorrection_2.rds"))
+upperbound=data.frame(readRDS("output/hazards_rate_upperbound_amit_EQ_withPCcorrection_2.rds"))
+lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_amit_EQ_withPCcorrection_2.rds"))
+
 
 
 hrmat=hazards[,grep("HR",colnames(hazards))];

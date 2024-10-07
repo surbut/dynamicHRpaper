@@ -1,0 +1,229 @@
+---
+title: "Fig1"
+author: "Sarah Urbut"
+date: "2023-03-12"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,cache = FALSE,warning = FALSE,message = FALSE)
+
+```
+
+```{r,echo=F,message=FALSE}
+library("dplyr")
+library("tidyverse")
+library("survival")
+library("survminer")
+library("eulerr")
+library("ggplot2")
+library("reshape")
+library("ggfortify")
+library("gridExtra")
+library("survMisc")
+library("rsq")
+library("pROC")
+library("data.table")
+library("RColorBrewer")
+library("gt")
+library("DT")
+library(plotly)
+library(dplyr)
+library(carData)
+library(gapminder)
+library(babynames)
+```
+
+## HR for UKB
+
+
+
+```{r chunkenew}
+df=readRDS("data/amit_df.rds")
+dat=data.frame(df %>%group_by(round(phenos.enrollment,0)) %>%summarise(length(phenos.enrollment)))[c(3:32),]
+
+
+# hazards=data.frame(readRDS("output/hazards_rate_UKB_amit_PCEQC.rds"))
+# # upperbound=data.frame(readRDS("output/hazards_rate_upperbound_amit_PCEQ.rds"))
+# # lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_amit_PCEQ.rds"))
+
+
+
+hazards=data.frame(readRDS("output/hazards_rate_UKB_amit_EQ_withPCcorrection_2.rds"))
+upperbound=data.frame(readRDS("output/hazards_rate_upperbound_amit_EQ_withPCcorrection_2.rds"))
+lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_amit_EQ_withPCcorrection_2.rds"))
+
+
+
+hrmat=hazards[,grep("HR",colnames(hazards))];
+hrmat$age=dat$round.phenos.enrollment..0.
+
+ormat=hazards[,grep("OR",colnames(hazards))];ormat$age=dat$round.phenos.enrollment..0.
+r2mat=hazards[,grep("r2",colnames(hazards))];r2mat$age=dat$round.phenos.enrollment..0.
+
+colnames(hrmat)=colnames(ormat)=colnames(r2mat)=c("Polygenic score","Pooled cohort equations","LDL Cholesterol","Smoking","Age","Systolic blood pressure","Diabetes mellitus","Body Mass Index","Male Sex","High-density lipoprotein","Total cholesterol","age")
+
+
+upperbound$age=dat$round.phenos.enrollment..0.
+u=melt(upperbound,id.vars="age")
+
+lowerbound$age=dat$round.phenos.enrollment..0.
+l=melt(lowerbound,id.vars="age")
+
+
+```
+
+```{r}
+## convert to longform
+library(RColorBrewer)
+haz = melt(hrmat, id.vars = "age")
+ors = melt(ormat, id.vars = "age")
+r2s = melt(r2mat, id.vars = "age")
+
+haz$low.se = l$value
+haz$upper.se = u$value
+
+
+
+
+col_pce <- rev(brewer.pal(10, "Paired"))
+col_p = c(col_pce[1:3],
+          col_pce[5],
+          col_pce[4],
+          col_pce[c(6, 10)],
+          "black",
+          col_pce[9],
+          "turquoise",
+          col_pce[7])
+
+r2s$variable = ors$variable = haz$variable <-
+  factor(
+    haz$variable,
+    levels = c(
+      "Diabetes mellitus",
+      "Male Sex",
+      "Smoking",
+      "Polygenic score",
+      "LDL Cholesterol",
+      "Systolic blood pressure",
+      "Body Mass Index",
+      "Pooled cohort equations",
+      "Age",
+      "High-density lipoprotein",
+      "Total cholesterol"
+    )
+  )
+```
+
+
+
+
+## Now for just PCE
+
+```{r}
+
+
+hr_ukb_pce = ggplot(subset(
+  haz,
+  variable %in% c("Pooled cohort equations")
+),
+aes(age, value, colour = variable)) +
+  labs(y = "Hazard Ratio of Coronary Artery Disease", x = "Age of Risk Assessment", colour =
+         "Risk Factor") +
+  #geom_point(size = 0.5) +
+  stat_smooth(method = "loess", span = 1) +
+  scale_color_manual(
+    values = col_p,
+    drop = TRUE,
+    breaks = c(
+      "Diabetes mellitus",
+      "Male Sex",
+      "Smoking",
+      "Polygenic score",
+      "LDL Cholesterol",
+      "Systolic blood pressure",
+      "Body Mass Index",
+      "Pooled cohort equations",
+      "Age",
+      "High-density lipoprotein",
+      "Total cholesterol"
+    )
+  )
+
+
+
+
+
+r2_ukb_pce = ggplot(subset(
+  r2s,
+  variable %in% c("Pooled cohort equations"
+  )
+),
+aes(age, value, colour = variable)) +
+  labs(y = "Proportion of Variation Explained", x = "Age of Risk Assessment", colour =
+         "Risk Factor") +
+ # geom_point(size = 0.5) +
+  stat_smooth(method = "loess", span = 1) +
+  scale_color_manual(
+    values = col_p,
+    drop = TRUE,
+    breaks = c(
+      "Diabetes mellitus",
+      "Male Sex",
+      "Smoking",
+      "Polygenic score",
+      "LDL Cholesterol",
+      "Systolic blood pressure",
+      "Body Mass Index",
+      "Pooled cohort equations",
+      "Age",
+      "High-density lipoprotein",
+      "Total cholesterol"
+    )
+  )
+
+r2_pce = r2_ukb_pce + theme_classic(base_size = 15)+theme(legend.position = "none")+ylim(0,0.15)+labs(x="Age of Risk Assessment, Years")
+#hall_pce = hr_ukb_pce + theme_classic(base_size = 20) + tems +ylim(0.8,4.5)
+hall_pce = hr_ukb_pce + theme_classic(base_size = 15) +ylim(0.8,5)+theme(legend.position = "none")+labs(x="Age of Risk Assessment, Years")
+```
+
+```{r}
+ggsave(hall_pce,filename = paste0(fig_path,"hr_pce.tiff"),dpi = 300,width = 6,height = 6)
+ggsave(r2_pce,filename = paste0(fig_path,"r2_pce.tiff"),dpi = 300,width = 6,height = 6)
+saveRDS(hall_pce,"output/hallpce_sd.rds")
+saveRDS(r2_pce,"output/r2pce_sd.rds")
+
+hall_pce=readRDS("output/hallpce_sd.rds")
+r2_pce=readRDS("output/r2pce_sd.rds")
+g=ggarrange(hall_pce+theme_classic(base_size = 15),r2_pce+theme_classic(base_size = 15),ncol=2,labels=c("C.","D."),legend = "none")
+
+ggsave(g,filename = "Figs/PCEsd.tiff",dpi=300,width=10,height=5)
+```
+
+```{r}
+ggplotly(hall_pce)
+```
+
+```{r}
+ggplotly(r2_pce)
+```
+
+## Hazard Rate Lookup Table
+```{r}
+library(DT)
+m=cbind(haz[,c(1:2)],round(haz[,c(3:5)],2))
+colnames(m)=colnames(haz)
+DT::datatable(m)
+```
+
+## Proportion Variation Explained Lookup Table
+
+```{r}
+library(DT)
+m=cbind(r2s[,c(1:2)],round(r2s[,c(3)],2))
+colnames(m)=colnames(r2s)
+DT::datatable(m)
+```

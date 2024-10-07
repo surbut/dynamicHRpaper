@@ -24,7 +24,6 @@ knitr::opts_chunk$set(cache = FALSE,warning = FALSE,message = FALSE,fig.path = "
 
 ```
 
-
 ```{r,echo=F,message=FALSE}
 library("dplyr")
 library("tidyverse")
@@ -93,8 +92,6 @@ tems = theme(
 
 ```
 
-
-
 ## FHS
 
 ```{r framingham}
@@ -109,7 +106,8 @@ dat=dat[c(11:50),]
 
 
 #hazards=readRDS("output/hazards_.rds")
-hazards=data.frame(readRDS("output/hazards_fh_EQ_withPC_corrections.rds"))
+#hazards=data.frame(readRDS("output/hazards_fh_EQ_withPC_corrections.rds"))
+hazards=data.frame(readRDS("output/hazards_fh_EQ_withPC_corrections_2.rds"))
 hazards=data.frame(hazards)
 
 hazards=data.frame(hazards)
@@ -140,12 +138,11 @@ colnames(hrmat)=colnames(ormat)=colnames(r2mat)=c("Polygenic risk score","LDL Ch
 #####
 ```
 
-
 ```{r new}
 setwd("~/dynamicHRpaper/")
 
-upperbound=data.frame(readRDS("output/hazards_rate_upperbound_fh_EQ_withPC_corrections.rds"))
-lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_fh_EQ_withPC_corrections.rds"))
+upperbound=data.frame(readRDS("output/hazards_rate_upperbound_fh_EQ_withPC_corrections_2.rds"))
+lowerbound=data.frame(readRDS("output/hazards_rate_lowerbound_fh_EQ_withPC_corrections_2.rds"))
 
 upperbound$age=dat$round.AGE1..0.
 u=melt(upperbound,id.vars="age")
@@ -169,9 +166,9 @@ idvar = "age", timevar = "variable")
 
 r=reshape(r2s, direction = "wide",
 idvar = "age", timevar = "variable")
-write.csv(s,"output/hrindex_fhs_eq_with_pc.csv",row.names = F)
+#write.csv(s,"output/hrindex_fhs_eq_with_pc.csv",row.names = F)
 
-write.csv(r,"output/r2index_fhs_eq_with_pc.csv",row.names = F)
+#write.csv(r,"output/r2index_fhs_eq_with_pc.csv",row.names = F)
 ```
 
 ```{r}
@@ -231,13 +228,12 @@ h1=h1+theme_classic(base_size = 20)+theme(legend.position = "none")+tems
 ggplotly(h1)
 ```
 
-
 ```{r}
 ggplotly(r2)
 ```
 
-
 # Hazard Rate Lookup Table
+
 ```{r}
 library(DT)
 m=cbind(haz[,c(1:2)],round(haz[,c(3:5)],2))
@@ -246,6 +242,7 @@ DT::datatable(m)
 ```
 
 # Proportion Variation Explained Lookup Table
+
 ```{r}
 library(DT)
 m=cbind(r2s[,c(1:2)],round(r2s[,c(3)],2))
@@ -258,7 +255,7 @@ DT::datatable(m)
 ```{r}
 #hall=readRDS("output/hall.rds")
 #r2u=readRDS("output/r2.rds")
-setwd("~/Dropbox/rootfilesforbackup/dynamichr/")
+setwd("~/Dropbox (Personal)//rootfilesforbackup/dynamichr/")
 hall=readRDS("output/hall_withPC.rds")
 r2u=readRDS("output/r2_withPC.rds")
 h1=readRDS("output/h1hs_withPC.rds")

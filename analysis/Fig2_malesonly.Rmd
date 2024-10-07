@@ -181,7 +181,7 @@ library(ggplot2)
 library(ggpubr)
 
 # Plot 1: "ga"
-ga <- ggplot(data = predp, aes(x = x * 100, y = fit, ymin = lwr, ymax = upr, fill = variable, color = variable)) +
+ga <- ggplot(data = predp, aes(x = x * 100, y = fit, ymin = lwr, ymax = 0.20, fill = variable, color = variable)) +
   geom_line(linewidth = 2) +
   geom_ribbon(alpha = 0.3) +
   xlab("Polygenic score percentile") +

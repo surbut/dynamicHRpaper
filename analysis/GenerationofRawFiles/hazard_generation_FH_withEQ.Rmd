@@ -50,9 +50,9 @@ library("plotly")
 # f3=readRDS("~/Dropbox/fh_prs.rds")
 # df=readRDS("~/Dropbox/fh_full.rds")
 
-f3=readRDS("output/fh_PRS.rds")
-df=readRDS("output/fh_full.rds")
-pcs=fread("~/Dropbox/pca/genotype_data_nodup.eigenvec")
+f3=readRDS("data/fh_PRS.rds")
+df=readRDS("data/fh_full.rds")
+pcs=fread("~/Dropbox (Personal)/pca//genotype_data_nodup.eigenvec")
 merged_df=merge(f3,pcs,by.x="shareid",by.y="#FID")
 
 # Fit a linear model to residualize the PRS scores for the first 10 PC
@@ -131,11 +131,11 @@ for(i in seq(1:nrow(dat))){
   
   age=dat[i,1]
   
-  d=df[df$round_age==age|df$round_age==age-1|df$round_age==age+1,]
-  f=f3[f3$round_age==age|f3$round_age==age-1|f3$round_age==age+1,]
+  d=d2=df[df$round_age==age|df$round_age==age-1|df$round_age==age+1,]
+  f=f2=f3[f3$round_age==age|f3$round_age==age-1|f3$round_age==age+1,]
   
-  d2=df[df$round_age<=age,]
-  f2=f3[f3$round_age<=age,]
+  #d2=df[df$round_age<=age,]
+  #f2=f3[f3$round_age<=age,]
   
   
   # #
@@ -292,9 +292,13 @@ colnames(upperbound) = colnames(lowerbound)=c(
 # saveRDS(hazards,"~/Dropbox/paper_scripts/output/hazards_fhs_EQ.rds") 
 
 
-saveRDS(lowerbound,"output/hazards_rate_lowerbound_fh_EQ_withPC_corrections.rds")
-saveRDS(upperbound,"output/hazards_rate_upperbound_fh_EQ_withPC_corrections.rds")
-# 
-saveRDS(hazards,"output/hazards_fh_EQ_withPC_corrections.rds") 
+# saveRDS(lowerbound,"output/hazards_rate_lowerbound_fh_EQ_withPC_corrections.rds")
+# saveRDS(upperbound,"output/hazards_rate_upperbound_fh_EQ_withPC_corrections.rds")
+# # 
+# saveRDS(hazards,"output/hazards_fh_EQ_withPC_corrections.rds") 
 
+saveRDS(lowerbound,"output/hazards_rate_lowerbound_fh_EQ_withPC_corrections_2.rds")
+saveRDS(upperbound,"output/hazards_rate_upperbound_fh_EQ_withPC_corrections_2.rds")
+# 
+saveRDS(hazards,"output/hazards_fh_EQ_withPC_corrections_2.rds") 
 ```

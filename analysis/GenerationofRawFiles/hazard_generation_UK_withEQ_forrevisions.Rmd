@@ -1,0 +1,295 @@
+---
+title: "CreatingHazards"
+output: html_document
+date: '2023-02-26'
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## genereate hazars
+
+for the first plots
+
+
+```{r,echo=F,message=FALSE}
+library("dplyr")
+library("tidyverse")
+library("survival")
+library("survminer")
+library("eulerr")
+library("ggplot2")
+library("reshape")
+library("ggfortify")
+library("gridExtra")
+library("survMisc")
+library("rsq")
+library("pROC")
+library("data.table")
+library("RColorBrewer")
+library("gt")
+library("DT")
+library(plotly)
+library(dplyr)
+library(carData)
+library(gapminder)
+library(babynames)
+```
+
+## HR for UKB
+
+
+## make the table
+```{r,eval=T}
+setwd("~/dynamicHRpaper/")
+df = readRDS("data/amit_df.rds")
+dfukb_with_pcs=readRDS("data/baseline_withPCS.rds")
+pcdf=dfukb_with_pcs[,c("identifier","f.22009.0.1","f.22009.0.2","f.22009.0.3","f.22009.0.4","f.22009.0.5","f.22009.0.6","f.22009.0.7","f.22009.0.8","f.22009.0.9","f.22009.0.10")]
+
+
+# Merge the dataframes on the identifier (eid and identifier)
+merged_df <- df %>%
+ inner_join(pcdf, by = c("eid" = "identifier"))
+
+# Fit a linear model to residualize the PRS scores for the first 10 PCs
+model <- lm(SCORE ~ f.22009.0.1 + f.22009.0.2 + f.22009.0.3 + f.22009.0.4 +
+                  f.22009.0.5 + f.22009.0.6 + f.22009.0.7 + f.22009.0.8 +
+                  f.22009.0.9 + f.22009.0.10, data = merged_df)
+
+# Extract the residuals
+merged_df$residuals <- residuals(model)
+
+merged_df$scaled_score=scale(merged_df$residuals)
+
+
+#prs_df=readRDS("~/Dropbox/pheno_dir/prs_subset.rds")
+#merge(df,prs_df)
+
+df=merge(df,merged_df[,c("eid","scaled_score")],all.x = T)
+df$scaled_score[is.na(df$scaled_score)]=mean(merged_df$scaled_score)
+
+
+
+dat = data.frame(df %>% group_by(round(phenos.enrollment, 0)) %>% summarise(length(phenos.enrollment)))[c(3:32), ]
+
+## person time years
+sum(df$phenos.CAD_censor_age-df$phenos.enrollment)
+hazards = matrix(data = NA,
+                 nrow = nrow(dat),
+                 ncol = 33)
+
+
+
+
+## make sure normalized
+#df$prs_quant = scale(df$SCORE)
+df$prs_quant = scale(df$scaled_score)
+## make sure rank is good
+df$prs.r = (rank(df$prs_quant) / length(df$prs_quant))
+df$round_age = round(df$phenos.enrollment, 0)
+saveRDS(df,file = "output/amit_df_with_pc_correction.rds")
+
+
+df$ldl.quant = scale(df$ldladj)
+df$sbp.quant = scale(df$sbp)
+df$hdl.quant = scale(df$hdladj)
+df$chol.quant = scale(df$choladj)
+df$age.quant = scale(df$phenos.enrollment)
+df$bmi.quant = scale(df$bmi)
+df$phenos.has_CAD = df$has_disease
+df$sex = ifelse(df$sex == "male", 1, 0)
+
+sum(df$age_to_censor < 0 & df$phenos.has_CAD == 1)
+#df=na.omit(df)
+
+
+B=50
+rsq=array(dim=c(B,nrow(dat),22))
+for(b in 1:B) {
+  for (i in seq(1:nrow(dat))) {
+    age = dat[i, 1]
+    print(i)
+    print(age)
+    
+    
+    d = df[df$round_age >= age - 1 & df$round_age <= age + 1, ]
+    #d=df[df$round_age==age,]
+    d2 = df[df$round_age <= age, ]
+    
+    if (i == 1) {
+      d = d2
+    } else {
+      d = d
+    }
+    
+    d2=d2[sample(nrow(d2),size = nrow(d2),replace = T),]
+    
+    reg = glm(phenos.has_CAD ~ prs_quant,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 1] = exp(coef(reg)[[2]])
+    rsq[b, i, 2] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    
+    
+    reg = glm(phenos.has_CAD ~ ascvd_10y_accaha,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 3]  = exp(coef(reg))[[2]]
+    rsq[b, i, 4]  = with(summary(reg), 1 - deviance / null.deviance)
+    
+    
+    # #   LDL fit
+    reg = glm(phenos.has_CAD ~ ldl.quant,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 5] = exp(coef(reg))[[2]]
+    rsq[b, i, 6] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    # #     smoke fit
+    
+    reg = glm(phenos.has_CAD ~ smoke, data = d2, family = "binomial")
+    rsq[b, i, 7] = exp(coef(reg))[[2]]
+    
+    rsq[b, i, 8] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    
+    
+    # #  age fit
+    
+    reg = glm(phenos.has_CAD ~ phenos.enrollment,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 9] = exp(coef(reg))[[2]]
+    rsq[b, i, 10] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    # #     SBP fit
+    reg = glm(phenos.has_CAD ~ sbp.quant,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 11]  = exp(coef(reg))[[2]]
+    
+    rsq[b, i, 12] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    # #     dmfit
+    reg = glm(phenos.has_CAD ~ prev_disease_dm,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 13] = exp(coef(reg))[[2]]
+    
+    rsq[b, i, 14] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    
+    # # #  bmifit
+    reg = glm(phenos.has_CAD ~ bmi.quant,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 15] = exp(coef(reg))[[2]]
+    rsq[b, i, 16] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    #
+    #
+    # #  sexfit
+    reg = glm(phenos.has_CAD ~ sex, data = d2, family = "binomial")
+    rsq[b, i, 17] = exp(coef(reg))[[2]]
+    # rm(reg)
+    # reg = glm(phenos.has_CAD ~ sex, data = d2, family = "binomial")
+    rsq[b, i, 18] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    # #   HDL fit
+    reg = glm(phenos.has_CAD ~ hdl.quant,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 19] = exp(coef(reg))[[2]]
+    
+    rsq[b, i, 20] = with(summary(reg), 1 - deviance / null.deviance)
+    
+    
+    #hazards[i,9]=rsq(reg,type="n")
+    
+    # #  totalchol
+    reg = glm(phenos.has_CAD ~ chol.quant,
+              data = d2,
+              family = "binomial")
+    rsq[b, i, 21] = exp(coef(reg))[[2]]
+    
+    rsq[b, i, 22] = with(summary(reg), 1 - deviance / null.deviance)
+    
+  }
+}
+## for some reasona DM not converging even through the coefficients are reasonable, https://stat.ethz.ch/pipermail/r-help/2008-September/174201.html, ignore and change eps and converge parameters
+
+
+# Define the dimension names for rsq
+dimnames(rsq) <- list(
+  paste0("Bootstrap_", 1:B),  # Label for bootstrap iterations (1 to 50)
+  paste0("Age_", round(dat$round.phenos.enrollment..0., 0)),  # Age labels, rounded
+  c(
+    "prs.OR", "prs.r2", 
+    "PCE.OR", "PCE.r2", 
+    "ldl.OR", "ldl.r2", 
+    "smoke.OR", "smoke.r2", 
+    "age.OR", "age.r2", 
+    "sbp.OR", "sbp.r2", 
+    "dm.OR", "dm.r2", 
+    "bmi.OR", "bmi.r2", 
+    "sex.OR", "sex.r2", 
+    "hdl.OR", "hdl.r2", 
+    "tc.OR", "tc.r2"  # Covariate labels
+  )
+)
+
+
+library(reshape2)
+library(dplyr)
+library(plotly)
+
+# Assuming `dat` has 30 ages
+ages <- round(dat$round.phenos.enrollment..0., 0)
+
+# Initialize a data frame to store results
+results <- data.frame()
+
+# Loop through covariates (11 covariates, each has OR and r2)
+for (j in seq(2, 22, by = 2)) {  # r2 columns are even numbers
+  covariate_name <- dimnames(rsq)[[3]][j]  # Extract covariate name (r2 variable)
+  
+  for (i in 1:length(ages)) {  # Loop through ages
+    r2_values <- rsq[, i, j]
+    
+    # Compute median and standard error
+    median_r2 <- median(r2_values, na.rm = TRUE)
+    se_r2 <- sd(r2_values, na.rm = TRUE) / sqrt(length(r2_values))
+    
+    # Store the results in a data frame
+    results <- rbind(results, data.frame(
+      age = ages[i],
+      covariate = covariate_name,
+      median_r2 = median_r2,
+      se_r2 = se_r2
+    ))
+  }
+}
+
+# Now we can create the plot using Plotly
+plot <- plot_ly(data = results, x = ~age, y = ~median_r2, color = ~covariate, 
+                type = 'scatter', mode = 'lines+markers', 
+                error_y = list(type = 'data', array = ~se_r2)) %>%
+  layout(title = "Median R² with Standard Error Across Ages by Covariate",
+         xaxis = list(title = "Age"),
+         yaxis = list(title = "Median R²"),
+         facet_col = ~covariate)
+
+plot
+
+
+
+#hazards[2, "dm.HR"] = NA
+#saveRDS(hazards,"~/Dropbox/hazards_rate_UKB_mixed.rds")
+#saveRDS(hazards,"~/Dropbox/hazards_rate_UKBleq.rds")
+#(hazards,"output/hazards_rate_UKB_amit_EQ.rds")
+
+#saveRDS(hazards,file = "output/hazards_rate_UKB_amit_EQ_withPCcorrection.rds")
+
+```
